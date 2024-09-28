@@ -8,8 +8,8 @@
 
 int main(int argc, char* argv[], char* envp[]){
   
-  // repl();
-  Node *root = createNode(10);
+  uint64_t values[MAX_KEYS] = {10, 0, 0, 0};
+  Node *root = createNode(values, TRUE);
   BTree *tr =  createTree(root);
 
   printf("Création de l'arbre avec comme valeur : %d\n", tr->root->keys[0]);
@@ -18,8 +18,8 @@ int main(int argc, char* argv[], char* envp[]){
   insertKey(root, 20);
   insertKey(root, 7);
   printNode(root);
-  free(tr);
-
+  freeBTree(tr);
+  
   return 0;
   
 }
