@@ -1,6 +1,6 @@
 #include "btree.h"
 
-Node *createNode(uint8_t value) {
+Node *createNode(uint64_t value) {
     Node *node = (Node*)malloc(sizeof(*node));
 
     if(node == NULL) {
@@ -51,4 +51,28 @@ void freeBTree(BTree *tree) {
         freeNode(tree->root);
         free(tree);
     }
+}
+
+void insertKey(Node *node, uint64_t value) {
+    if (node->numKeys == MAX_KEYS) {
+        printf("Erreur : Le noeud est plein, impossible d'insérer la clé %ld.\n", value);
+        return;
+    }
+    int8_t i;  
+    for(i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
+        node->keys[i+1] = node->keys[i];
+    }
+
+    node->keys[i+1] = value;
+    node->numKeys++;
+}
+
+void printNode(Node *node) {
+    for(uint8_t i = 0; i < MAX_KEYS; i++) {
+        if(node->keys[i] != 0) {
+            printf("[%d] ", node->keys[i]);
+        }
+    }
+    printf(" %d clés", node->numKeys);
+    printf("\n");
 }

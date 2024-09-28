@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #define MAX_KEYS 4
+#define MIN_KEYS 2
 
 typedef struct Node {
     uint8_t keys[4];
@@ -19,9 +20,11 @@ typedef struct BTree {
 } BTree;
 
 
-Node *createNode(uint8_t value);
+Node *createNode(uint64_t value);
 BTree *createTree(Node *root);
 void freeNode(Node *node);
 void freeBTree(BTree *tree);
+void insertKey(Node *node, uint64_t value);
+void printNode(Node *node);
 
 #endif

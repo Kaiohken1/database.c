@@ -13,6 +13,11 @@ int main(int argc, char* argv[], char* envp[]){
   BTree *tr =  createTree(root);
 
   printf("Création de l'arbre avec comme valeur : %d\n", tr->root->keys[0]);
+  insertKey(root, 15);
+  insertKey(root, 9);
+  insertKey(root, 20);
+  insertKey(root, 7);
+  printNode(root);
   free(tr);
 
   return 0;
