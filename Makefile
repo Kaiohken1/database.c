@@ -1,3 +1,3 @@
 default: build
 build:
-	gcc -o db src/main.c
+	gcc -o db src/*.c
