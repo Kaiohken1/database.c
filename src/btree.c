@@ -17,13 +17,7 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot) {
         }
     }
 
-    node->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
-    if (node->children == NULL) {
-        fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour les enfants\n");
-        free(node);
-        exit(EXIT_FAILURE);
-    }
-    memset(node->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
+    node->children = NULL;
 
     node->parent = NULL;
     node->isRoot = isRoot;
@@ -48,12 +42,14 @@ BTree *createTree(Node *root) {
 
 void freeNode(Node *node) {
     if (node != NULL) {
-        for (int i = 0; i < MAX_KEYS; i++) {
-            if (node->children[i] != NULL) {
-                freeNode(node->children[i]);
+        if(node->children != NULL) {
+            for (int i = 0; i < MAX_KEYS; i++) {
+                if (node->children[i] != NULL) {
+                    freeNode(node->children[i]);
+                }
             }
+            free(node->children);  
         }
-        free(node->children);  
         free(node);
     }
 }
@@ -65,18 +61,38 @@ void freeBTree(BTree *tree) {
     }
 }
 
-void insertKey(Node *node, uint64_t value, BTree *tree) {
-    int8_t i;  
-    for(i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
-        node->keys[i+1] = node->keys[i];
+
+void insertKey(uint64_t value, BTree *tree) {
+    Node *node = tree->root;
+
+    if (node == NULL) {
+        fprintf(stderr, "Erreur : l'arbre est vide.\n");
+        return;
     }
 
-    node->keys[i+1] = value;
+    while (node->children != NULL) {
+        int8_t childPos = node->numKeys;
+        while (childPos > 0 && value < node->keys[childPos - 1]) {
+            childPos--;
+        }
+
+        Node *child = node->children[childPos];
+
+        if (child == NULL) {
+            break; 
+        }
+        node = child;
+    }
+
+    int8_t i;  
+    for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
+        node->keys[i + 1] = node->keys[i];
+    }
+
+    node->keys[i + 1] = value;
     node->numKeys++;
 
     if (node->numKeys == MAX_KEYS + 1) {
-        // printf("Erreur : Le noeud est plein, split après %ld.\n", value);
-        // return;
         splitNode(node, tree);
     }
 }
@@ -104,6 +120,16 @@ void splitNode(Node *node, BTree *tree) {
     uint64_t medianVal[] = {medianValue};
     Node *parent = createNode(medianVal, 1, node->isRoot);
 
+    parent->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
+
+    if (parent->children == NULL) {
+        fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour les enfants\n");
+        free(parent);
+        exit(EXIT_FAILURE);
+    }
+
+    memset(parent->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
+
     parent->children[0] = leftN;
     parent->children[1] = rightN;
     leftN->parent = parent;
@@ -119,12 +145,12 @@ void splitNode(Node *node, BTree *tree) {
 
 void changeRoot(Node *node, BTree *tree) {
     tree->root = node;
-    printf("Noeud racine changé à %d\n", tree->root->keys[0]);
+    printf("Noeud racine changé à %ld\n", tree->root->keys[0]);
 }
 
 void printNode(Node *node) {
     for (uint8_t i = 0; i < node->numKeys; i++) { 
-        printf("[%d] ", node->keys[i]); 
+        printf("[%ld] ", node->keys[i]); 
     }
     printf(" (%d)", node->numKeys);
     printf("\n");
@@ -144,9 +170,11 @@ void printTreeHelper(Node *node) {
         return;
     }
 
-    for (uint8_t i = 0; i <= node->numKeys; i++) { 
-        if (node->children[i] != NULL) {
-            printTreeHelper(node->children[i]);
+    if(node->children != NULL) {
+        for (uint8_t i = 0; i <= node->numKeys; i++) { 
+            if (node->children[i] != NULL) {
+                printTreeHelper(node->children[i]);
+            }
         }
     }
 

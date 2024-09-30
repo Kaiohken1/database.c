@@ -14,7 +14,7 @@ typedef enum  {
     TRUE,
 } Bool;
 typedef struct Node {
-    uint8_t keys[MAX_KEYS + 1];
+    uint64_t keys[MAX_KEYS + 1];
     uint8_t numKeys;
     struct Node **children;
     struct Node *parent;
@@ -30,7 +30,7 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot);
 BTree *createTree(Node *root);
 void freeNode(Node *node);
 void freeBTree(BTree *tree);
-void insertKey(Node *node, uint64_t value, BTree *tree);
+void insertKey(uint64_t value, BTree *tree);
 void printNode(Node *node);
 void splitNode(Node *node, BTree *tree);
 void changeRoot(Node *node, BTree *tree);
