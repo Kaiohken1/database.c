@@ -36,5 +36,7 @@ void splitNode(Node *node, BTree *tree);
 void changeRoot(Node *node, BTree *tree);
 void printTree(BTree *tree);
 void printTreeHelper(Node *node);
+void insertKeyOnNode(uint64_t value, Node *node);
+uint8_t findChildPosition(Node *parent, Node *child);
 
 #endif

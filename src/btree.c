@@ -66,7 +66,7 @@ void insertKey(uint64_t value, BTree *tree) {
     Node *node = tree->root;
 
     if (node == NULL) {
-        fprintf(stderr, "Erreur : l'arbre est vide.\n");
+        fprintf(stderr, "Erreur : l'arbre est vide\n");
         return;
     }
 
@@ -84,6 +84,14 @@ void insertKey(uint64_t value, BTree *tree) {
         node = child;
     }
 
+    insertKeyOnNode(value, node);
+
+    if (node->numKeys == MAX_KEYS + 1) {
+        splitNode(node, tree);
+    }
+}
+
+void insertKeyOnNode(uint64_t value, Node *node) {
     int8_t i;  
     for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
         node->keys[i + 1] = node->keys[i];
@@ -91,10 +99,6 @@ void insertKey(uint64_t value, BTree *tree) {
 
     node->keys[i + 1] = value;
     node->numKeys++;
-
-    if (node->numKeys == MAX_KEYS + 1) {
-        splitNode(node, tree);
-    }
 }
 
 //Ici on reçoit un noeud qui dépasse la taille maximale autorisée
@@ -103,8 +107,8 @@ void splitNode(Node *node, BTree *tree) {
     uint8_t medianIndex = MAX_KEYS / 2;
     uint64_t medianValue = node->keys[medianIndex]; 
 
-    uint64_t leftVal[MAX_KEYS];
-    uint64_t rightVal[MAX_KEYS];
+    uint64_t leftVal[MAX_KEYS / 2];
+    uint64_t rightVal[MAX_KEYS / 2];
 
     for (uint8_t i = 0; i < medianIndex; i++) {
         leftVal[i] = node->keys[i];
@@ -118,28 +122,53 @@ void splitNode(Node *node, BTree *tree) {
     Node *rightN = createNode(rightVal, node->numKeys - medianIndex - 1, FALSE);
 
     uint64_t medianVal[] = {medianValue};
-    Node *parent = createNode(medianVal, 1, node->isRoot);
 
-    parent->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
+    if(node->parent == NULL) {
+        Node *parent = createNode(medianVal, 1, node->isRoot);
 
-    if (parent->children == NULL) {
-        fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour les enfants\n");
-        free(parent);
-        exit(EXIT_FAILURE);
-    }
+        parent->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
 
-    memset(parent->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
+        if (parent->children == NULL) {
+            fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour les enfants\n");
+            free(parent);
+            exit(EXIT_FAILURE);
+        }
 
-    parent->children[0] = leftN;
-    parent->children[1] = rightN;
-    leftN->parent = parent;
-    rightN->parent = parent;
+        memset(parent->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
 
-    if (node->isRoot) {
-        changeRoot(parent, tree); 
+        parent->children[0] = leftN;
+        parent->children[1] = rightN;
+        leftN->parent = parent;
+        rightN->parent = parent;
+
+        if (node->isRoot) {
+            changeRoot(parent, tree); 
+        }
+    } else {
+        Node *parent = node->parent;
+        insertKeyOnNode(medianValue, parent);
+        uint8_t i = findChildPosition(parent, node);
+        parent->children[i] = leftN;
+        parent->children[i + 1] = rightN;
+        leftN->parent = parent;
+        rightN->parent = parent;
     }
 
     freeNode(node);
+}
+
+uint8_t findChildPosition(Node *parent, Node *child) {
+    if(parent == NULL || child == NULL) {
+        return -1;
+    }
+
+    for(uint8_t i = 0; i < parent->numKeys + 1; i++) {
+        if(parent->children[i] == child) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 
@@ -152,7 +181,7 @@ void printNode(Node *node) {
     for (uint8_t i = 0; i < node->numKeys; i++) { 
         printf("[%ld] ", node->keys[i]); 
     }
-    printf(" (%d)", node->numKeys);
+    node->isRoot ? printf(" (%d) -> Root", node->numKeys) : printf(" (%d)", node->numKeys);
     printf("\n");
 }
 

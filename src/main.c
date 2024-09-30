@@ -19,6 +19,16 @@ int main(int argc, char* argv[], char* envp[]){
   insertKey(7, tr);
   insertKey(39, tr);
   insertKey(18, tr);
+  insertKey(95, tr);
+  insertKey(100, tr);
+  insertKey(25, tr);
+  insertKey(79, tr);
+  insertKey(19, tr);
+  insertKey(17, tr);
+  insertKey(16, tr);
+  insertKey(26, tr);
+  insertKey(28, tr);
+
   printTree(tr);
   freeBTree(tr);
   return 0;
