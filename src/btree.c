@@ -6,9 +6,10 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot) {
         fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique\n");
         exit(EXIT_FAILURE);
     }
-    
+    node->children = NULL;
+
     node->numKeys = 0;
-    memset(node->keys, 0, sizeof(node->keys)); 
+    memset(node->keys, 0, sizeof(node->keys));
 
     for (uint8_t i = 0; i < numValues; i++) {
         if (values[i] != 0) {
@@ -16,9 +17,6 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot) {
             node->numKeys++;
         }
     }
-
-    node->children = NULL;
-
     node->parent = NULL;
     node->isRoot = isRoot;
 
@@ -43,12 +41,12 @@ BTree *createTree(Node *root) {
 void freeNode(Node *node) {
     if (node != NULL) {
         if(node->children != NULL) {
-            for (int i = 0; i < MAX_KEYS; i++) {
+            for (int i = 0; i <= node->numKeys; i++) {
                 if (node->children[i] != NULL) {
                     freeNode(node->children[i]);
                 }
             }
-            free(node->children);  
+            free(node->children);
         }
         free(node);
     }
@@ -79,7 +77,7 @@ void insertKey(uint64_t value, BTree *tree) {
         Node *child = node->children[childPos];
 
         if (child == NULL) {
-            break; 
+            break;
         }
         node = child;
     }
@@ -92,7 +90,7 @@ void insertKey(uint64_t value, BTree *tree) {
 }
 
 void insertKeyOnNode(uint64_t value, Node *node) {
-    int8_t i;  
+    int8_t i;
     for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
         node->keys[i + 1] = node->keys[i];
     }
@@ -105,7 +103,7 @@ void insertKeyOnNode(uint64_t value, Node *node) {
 //il faut donc le scinder en deux et isoler sa valeur médianne pour la transformer en parent
 void splitNode(Node *node, BTree *tree) {
     uint8_t medianIndex = MAX_KEYS / 2;
-    uint64_t medianValue = node->keys[medianIndex]; 
+    uint64_t medianValue = node->keys[medianIndex];
 
     uint64_t leftVal[MAX_KEYS / 2];
     uint64_t rightVal[MAX_KEYS / 2];
@@ -115,17 +113,40 @@ void splitNode(Node *node, BTree *tree) {
     }
 
     for (uint8_t i = medianIndex + 1; i < node->numKeys; i++) {
-        rightVal[i - (medianIndex + 1)] = node->keys[i]; 
+        rightVal[i - (medianIndex + 1)] = node->keys[i];
     }
 
-    Node *leftN = createNode(leftVal, medianIndex, FALSE);
-    Node *rightN = createNode(rightVal, node->numKeys - medianIndex - 1, FALSE);
+    Node *leftN = createNode(leftVal, MAX_KEYS / 2, FALSE);
+    Node *rightN = createNode(rightVal, MAX_KEYS / 2, FALSE);
+
+    // Redistribution des enfants
+    if (node->children != NULL) {
+        leftN->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
+        rightN->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
+
+        if (leftN->children == NULL || rightN->children == NULL) {
+            fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour les enfants\n");
+            free(leftN);
+            free(rightN);
+            exit(EXIT_FAILURE);
+        }
+
+        memset(leftN->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
+        memset(rightN->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
+
+        // Assignation des enfants
+        for (uint8_t i = 0; i <= medianIndex; i++) {
+            leftN->children[i] = node->children[i];
+        }
+        for (uint8_t i = medianIndex + 1; i <= node->numKeys; i++) {
+            rightN->children[i - (medianIndex + 1)] = node->children[i];
+        }
+    }
 
     uint64_t medianVal[] = {medianValue};
 
-    if(node->parent == NULL) {
+    if (node->parent == NULL) {
         Node *parent = createNode(medianVal, 1, node->isRoot);
-
         parent->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
 
         if (parent->children == NULL) {
@@ -142,16 +163,25 @@ void splitNode(Node *node, BTree *tree) {
         rightN->parent = parent;
 
         if (node->isRoot) {
-            changeRoot(parent, tree); 
+            changeRoot(parent, tree);
         }
     } else {
         Node *parent = node->parent;
         insertKeyOnNode(medianValue, parent);
         uint8_t i = findChildPosition(parent, node);
+
+        for (uint8_t j = parent->numKeys; j > i + 1; j--) {
+            parent->children[j] = parent->children[j - 1];
+        }
         parent->children[i] = leftN;
         parent->children[i + 1] = rightN;
+
         leftN->parent = parent;
         rightN->parent = parent;
+
+        if (parent->numKeys > MAX_KEYS) {
+            splitNode(parent, tree);
+        }
     }
 
     freeNode(node);
@@ -178,8 +208,8 @@ void changeRoot(Node *node, BTree *tree) {
 }
 
 void printNode(Node *node) {
-    for (uint8_t i = 0; i < node->numKeys; i++) { 
-        printf("[%ld] ", node->keys[i]); 
+    for (uint8_t i = 0; i < node->numKeys; i++) {
+        printf("[%ld] ", node->keys[i]);
     }
     node->isRoot ? printf(" (%d) -> Root", node->numKeys) : printf(" (%d)", node->numKeys);
     printf("\n");
@@ -190,7 +220,7 @@ void printTree(BTree *tree) {
         printf("L'arbre est vide.\n");
         return;
     }
-    
+
     printTreeHelper(tree->root);
 }
 
@@ -200,7 +230,7 @@ void printTreeHelper(Node *node) {
     }
 
     if(node->children != NULL) {
-        for (uint8_t i = 0; i <= node->numKeys; i++) { 
+        for (uint8_t i = 0; i <= node->numKeys; i++) {
             if (node->children[i] != NULL) {
                 printTreeHelper(node->children[i]);
             }

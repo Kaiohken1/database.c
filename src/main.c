@@ -7,7 +7,7 @@
 
 
 int main(int argc, char* argv[], char* envp[]){
-  
+
   uint64_t values[] = {10};
   Node *root = createNode(values, 1, TRUE);
   BTree *tr =  createTree(root);
@@ -28,6 +28,7 @@ int main(int argc, char* argv[], char* envp[]){
   insertKey(16, tr);
   insertKey(26, tr);
   insertKey(28, tr);
+  // insertKey(70, tr);
 
   printTree(tr);
   freeBTree(tr);
