@@ -28,7 +28,7 @@ int main(int argc, char* argv[], char* envp[]){
   insertKey(16, tr);
   insertKey(26, tr);
   insertKey(28, tr);
-  // insertKey(70, tr);
+  insertKey(70, tr);
 
   printTree(tr);
   freeBTree(tr);
