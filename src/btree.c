@@ -251,3 +251,14 @@ void printTreeHelper(Node *node) {
     }
 }
 
+
+void insertTest(uint8_t max, BTree *tr) {
+    if (max > 100) {
+        max = 100;
+    }
+
+    for(uint8_t i = 2; i <= max; i++) {
+        insertKey(i, tr);
+    }
+}
+

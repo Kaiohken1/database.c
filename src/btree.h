@@ -38,5 +38,6 @@ void printTree(BTree *tree);
 void printTreeHelper(Node *node);
 void insertKeyOnNode(uint64_t value, Node *node);
 uint8_t findChildPosition(Node *parent, Node *child);
+void insertTest(uint8_t max, BTree *tr);
 
 #endif
