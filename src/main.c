@@ -30,10 +30,9 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  insertTest(25, tr);
+  insertTest(100, tr);
 
   printTree(tr);
   freeBTree(tr);
   return 0;
-  
 }

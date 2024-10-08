@@ -124,8 +124,8 @@ void splitNode(Node *node, BTree *tree) {
 
     // Redistribution des enfants
     if (node->children != NULL) {
-        leftN->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
-        rightN->children = (Node**)malloc((MAX_KEYS + 1) * sizeof(Node*));
+        leftN->children = (Node**)malloc((MAX_KEYS + 2) * sizeof(Node*));
+        rightN->children = (Node**)malloc((MAX_KEYS + 2) * sizeof(Node*));
 
         if (leftN->children == NULL || rightN->children == NULL) {
             fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour les enfants\n");
@@ -134,8 +134,8 @@ void splitNode(Node *node, BTree *tree) {
             exit(EXIT_FAILURE);
         }
 
-        memset(leftN->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
-        memset(rightN->children, 0, (MAX_KEYS + 1) * sizeof(Node*));
+        memset(leftN->children, 0, (MAX_KEYS + 2) * sizeof(Node*));
+        memset(rightN->children, 0, (MAX_KEYS + 2) * sizeof(Node*));
 
         for (uint8_t i = 0; i <= medianIndex; i++) {
             leftN->children[i] = node->children[i];
@@ -222,7 +222,14 @@ void printNode(Node *node) {
     for (uint8_t i = 0; i < node->numKeys; i++) {
         printf("[%ld] ", node->keys[i]);
     }
-    node->isRoot ? printf(" (%d) -> Root", node->numKeys) : printf(" (%d)", node->numKeys);
+
+    if(node->isRoot) {
+        printf(" (%d) -> Root", node->numKeys);
+    } else if (node->parent->isRoot) {
+        printf(" (%d) -> Root Child", node->numKeys);
+    } else {
+        printf(" (%d)", node->numKeys);
+    }
     printf("\n");
 }
 
