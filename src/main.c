@@ -4,15 +4,16 @@
 #include <stdbool.h>
 #include <string.h>
 #include "btree.h"
+#include "database.h"
 
 
 int main(int argc, char* argv[], char* envp[]){
 
-  uint64_t values[] = {1};
-  Node *root = createNode(values, 1, TRUE);
-  BTree *tr =  createTree(root);
+  // uint64_t values[] = {1};
+  // Node *root = createNode(values, 1, TRUE);
+  // BTree *tr =  createTree(root);
 
-  printf("Création de l'arbre avec comme valeur : %ld\n", tr->root->keys[0]);
+  // printf("Création de l'arbre avec comme valeur : %ld\n", tr->root->keys[0]);
   // insertKey(15, tr);
   // insertKey(9, tr);
   // insertKey(20, tr);
@@ -30,9 +31,19 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  insertTest(100, tr);
+  // insertTest(100, tr);
 
-  printTree(tr);
-  freeBTree(tr);
+  // printTree(tr);
+
+  Table *table = createTable("Name");
+  Row newRow;
+  newRow.id = 1;
+  strcpy(newRow.name, "Test");
+  insertRow(table, newRow);
+
+  printTree(table->tree);
+
+  freeBTree(table->tree);
+  free(table);
   return 0;
 }
