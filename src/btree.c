@@ -1,6 +1,6 @@
 #include "btree.h"
 
-Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot) {
+Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[]) {
     Node *node = (Node*)malloc(sizeof(*node));
     if (node == NULL) {
         fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique\n");
@@ -14,6 +14,7 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot) {
     for (uint8_t i = 0; i < numValues; i++) {
         if (values[i] != 0) {
             node->keys[i] = values[i];
+            node->rows[i] = rows[i];
             node->numKeys++;
         }
     }
@@ -107,20 +108,26 @@ void insertKeyOnNode(uint64_t value, Node *node) {
 void splitNode(Node *node, BTree *tree) {
     uint8_t medianIndex = MAX_KEYS / 2;
     uint64_t medianValue = node->keys[medianIndex];
+    Row *medianRow = node->rows[medianIndex];
 
-    uint64_t leftVal[MAX_KEYS / 2];
-    uint64_t rightVal[MAX_KEYS / 2];
+    uint64_t leftVal[medianIndex];
+    uint64_t rightVal[node->numKeys - medianIndex - 1];
+
+    Row *leftRows[MAX_KEYS / 2];
+    Row *rightRows[MAX_KEYS / 2];
 
     for (uint8_t i = 0; i < medianIndex; i++) {
         leftVal[i] = node->keys[i];
+        leftRows[i] = node->rows[i];
     }
 
     for (uint8_t i = medianIndex + 1; i < node->numKeys; i++) {
         rightVal[i - (medianIndex + 1)] = node->keys[i];
+        rightRows[i - (medianIndex + 1)] = node->rows[i];
     }
 
-    Node *leftN = createNode(leftVal, medianIndex, FALSE);
-    Node *rightN = createNode(rightVal, medianIndex, FALSE);
+    Node *leftN = createNode(leftVal, medianIndex, FALSE, leftRows);
+    Node *rightN = createNode(rightVal, medianIndex, FALSE, rightRows);
 
     // Redistribution des enfants
     if (node->children != NULL) {
@@ -154,9 +161,10 @@ void splitNode(Node *node, BTree *tree) {
     }
 
     uint64_t medianVal[] = {medianValue};
+    Row *medianRows[] = {medianRow};
 
     if (node->parent == NULL) {
-        Node *parent = createNode(medianVal, 1, node->isRoot);
+        Node *parent = createNode(medianVal, 1, node->isRoot, medianRows);
         parent->children = (Node**)malloc((MAX_KEYS + 2) * sizeof(Node*));
 
         if (parent->children == NULL) {
@@ -224,7 +232,7 @@ void printNode(Node *node) {
     }
 
     if(node->isRoot) {
-        printf(" (%d) -> Root", node->numKeys);
+        printf(" (%d) -> Root | Row : [%ld] '%s' ", node->numKeys, node->rows[0]->id, node->rows[0]->name);
     } else if (node->parent->isRoot) {
         printf(" (%d) -> Root Child", node->numKeys);
     } else {

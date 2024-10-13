@@ -9,7 +9,19 @@
 int main(int argc, char* argv[], char* envp[]){
 
   uint64_t values[] = {1};
-  Node *root = createNode(values, 1, TRUE);
+  Row *row = malloc(sizeof(Row)); 
+    if (row == NULL) {
+        fprintf(stderr, "Erreur d'allocation\n");
+        return 1;
+    }
+
+  row->id = 5;
+  strcpy(row->name, "Test"); 
+
+  Row *rows[1];
+  rows[0] = row;
+
+  Node *root = createNode(values, 1, TRUE, rows);
   BTree *tr =  createTree(root);
 
   printf("Création de l'arbre avec comme valeur : %ld\n", tr->root->keys[0]);
@@ -30,8 +42,7 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  insertTest(100, tr);
-
+  insertTest(3, tr);
   printTree(tr);
   freeBTree(tr);
   return 0;
