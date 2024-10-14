@@ -8,5 +8,6 @@ typedef struct Row {
     char name[50];
 } Row;
 
+void insertData(char name[50]);
 
 #endif

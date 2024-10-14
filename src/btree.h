@@ -32,14 +32,14 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
 BTree *createTree(Node *root);
 void freeNode(Node *node);
 void freeBTree(BTree *tree);
-void insertKey(uint64_t value, BTree *tree);
+void insertKey(uint64_t value, BTree *tree, char name[50]);
 void printNode(Node *node);
 void splitNode(Node *node, BTree *tree);
 void changeRoot(Node *node, BTree *tree);
 void printTree(BTree *tree);
 void printTreeHelper(Node *node);
-void insertKeyOnNode(uint64_t value, Node *node);
+void insertKeyOnNode(uint64_t value, Node *node, Row *row);
 uint8_t findChildPosition(Node *parent, Node *child);
-void insertTest(uint8_t max, BTree *tr);
+void insertTest(uint8_t max, BTree *tr, char name[50]);
 
 #endif

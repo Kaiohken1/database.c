@@ -8,15 +8,13 @@
 
 int main(int argc, char* argv[], char* envp[]){
 
-  uint64_t values[] = {1};
-  Row *row = malloc(sizeof(Row)); 
+  uint64_t values[] = {10};
+  Row *row = malloc(sizeof(Row));
     if (row == NULL) {
         fprintf(stderr, "Erreur d'allocation\n");
         return 1;
     }
-
-  row->id = 5;
-  strcpy(row->name, "Test"); 
+  strcpy(row->name, "aa");
 
   Row *rows[1];
   rows[0] = row;
@@ -42,8 +40,9 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  insertTest(3, tr);
+  insertTest(3, tr, row->name);
   printTree(tr);
+  free(row);
   freeBTree(tr);
   return 0;
 }

@@ -7,14 +7,16 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
         exit(EXIT_FAILURE);
     }
     node->children = NULL;
-
     node->numKeys = 0;
     memset(node->keys, 0, sizeof(node->keys));
+    memset(node->rows, 0, sizeof(node->keys));
 
     for (uint8_t i = 0; i < numValues; i++) {
         if (values[i] != 0) {
             node->keys[i] = values[i];
             node->rows[i] = rows[i];
+            if(node->rows != NULL)
+                node->rows[i]->id = values[i];
             node->numKeys++;
         }
     }
@@ -44,11 +46,18 @@ void freeNode(Node *node) {
         if (node->children != NULL) {
             for (int i = 0; i <= node->numKeys; i++) {
                 if (node->children[i] != NULL) {
-                    freeNode(node->children[i]); 
+                    freeNode(node->children[i]);
                 }
             }
             free(node->children);
             node->children = NULL;
+        }
+
+        for(uint8_t i = 0; i <= node->numKeys; i++) {
+                if (node->rows[i] != 0) {
+                    free(node->rows[i]);
+                    node->rows[i] = NULL;
+                }
         }
         free(node);
     }
@@ -59,12 +68,12 @@ void freeBTree(BTree *tree) {
         if (tree->root != NULL) {
             freeNode(tree->root);
         }
-        free(tree);  
+        free(tree);
     }
 }
 
 
-void insertKey(uint64_t value, BTree *tree) {
+void insertKey(uint64_t value, BTree *tree, char name[50]) {
     Node *node = tree->root;
 
     if (node == NULL) {
@@ -86,20 +95,31 @@ void insertKey(uint64_t value, BTree *tree) {
         node = child;
     }
 
-    insertKeyOnNode(value, node);
+    Row *row = malloc(sizeof(Row));
+    if (row == NULL) {
+        fprintf(stderr, "Erreur d'allocation\n");
+        return;
+    }
+    strcpy(row->name, name);
+
+    insertKeyOnNode(value, node, row);
 
     if (node->numKeys == MAX_KEYS + 1) {
         splitNode(node, tree);
     }
 }
 
-void insertKeyOnNode(uint64_t value, Node *node) {
+void insertKeyOnNode(uint64_t value, Node *node, Row *row) {
     int8_t i;
     for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
         node->keys[i + 1] = node->keys[i];
     }
 
     node->keys[i + 1] = value;
+
+    row->id = value;
+    node->rows[i+1] = row;
+
     node->numKeys++;
 }
 
@@ -185,7 +205,7 @@ void splitNode(Node *node, BTree *tree) {
         }
     } else {
         Node *parent = node->parent;
-        insertKeyOnNode(medianValue, parent);
+        insertKeyOnNode(medianValue, parent, medianRow);
         uint8_t i = findChildPosition(parent, node);
 
         for (uint8_t j = parent->numKeys; j > i + 1; j--) {
@@ -203,7 +223,7 @@ void splitNode(Node *node, BTree *tree) {
     }
 
     free(node->children);
-    free(node); 
+    free(node);
 }
 
 uint8_t findChildPosition(Node *parent, Node *child) {
@@ -232,13 +252,19 @@ void printNode(Node *node) {
     }
 
     if(node->isRoot) {
-        printf(" (%d) -> Root | Row : [%ld] '%s' ", node->numKeys, node->rows[0]->id, node->rows[0]->name);
-    } else if (node->parent->isRoot) {
+        printf(" (%d) -> Root", node->numKeys);
+    } else if (node->parent != NULL && node->parent->isRoot) {
         printf(" (%d) -> Root Child", node->numKeys);
     } else {
         printf(" (%d)", node->numKeys);
     }
     printf("\n");
+
+    for(uint8_t i = 0; i < node->numKeys; i++) {
+        if (node->rows[i] != 0) {
+            printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+        }
+    }
 }
 
 void printTree(BTree *tree) {
@@ -267,13 +293,13 @@ void printTreeHelper(Node *node) {
 }
 
 
-void insertTest(uint8_t max, BTree *tr) {
+void insertTest(uint8_t max, BTree *tr, char name[50]) {
     if (max > 100) {
         max = 100;
     }
 
     for(uint8_t i = 2; i <= max; i++) {
-        insertKey(i, tr);
+        insertKey(i, tr, name);
     }
 }
 
