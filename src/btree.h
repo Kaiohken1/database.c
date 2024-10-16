@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "database.h"
 
 #define MAX_KEYS 4
 #define MIN_KEYS 2
@@ -26,6 +25,11 @@ typedef struct Node {
 typedef struct BTree {
     struct Node *root;
 } BTree;
+
+typedef struct Row {
+    uint64_t id;
+    char name[50];
+} Row;
 
 
 Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[]);

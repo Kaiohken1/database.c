@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "btree.h"
+#include "database.h"
 
 
 int main(int argc, char* argv[], char* envp[]){
@@ -40,7 +41,8 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  insertTest(3, tr, row->name);
+  insertTest(1, tr, row->name);
+  insertData("Test", tr);
   printTree(tr);
   freeBTree(tr);
   return 0;

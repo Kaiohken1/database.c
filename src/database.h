@@ -2,12 +2,12 @@
 #define __DATABASE_H__
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "btree.h"
 
-typedef struct Row {
-    uint64_t id;
-    char name[50];
-} Row;
-
-void insertData(char name[50]);
+uint64_t getNextId(Node *node);
+void insertData(char *name, BTree *tr);
 
 #endif

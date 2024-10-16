@@ -1,9 +1,5 @@
 #include "repl.h"
-#include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "database.h"
 
 
 typedef enum {
@@ -90,7 +86,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
 void execute_statement(Statement* statement) {
   switch (statement->type) {
     case (STATEMENT_INSERT):
-    //TODO Implement the command here
+      
       break;
     case (STATEMENT_SELECT):
       //TODO implement the command here 
