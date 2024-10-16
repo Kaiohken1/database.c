@@ -42,7 +42,6 @@ int main(int argc, char* argv[], char* envp[]){
 
   insertTest(3, tr, row->name);
   printTree(tr);
-  free(row);
   freeBTree(tr);
   return 0;
 }

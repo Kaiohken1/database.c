@@ -9,15 +9,16 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
     node->children = NULL;
     node->numKeys = 0;
     memset(node->keys, 0, sizeof(node->keys));
-    memset(node->rows, 0, sizeof(node->keys));
+    memset(node->rows, 0, sizeof(Row *) * (MAX_KEYS + 1));
 
     for (uint8_t i = 0; i < numValues; i++) {
         if (values[i] != 0) {
             node->keys[i] = values[i];
-            node->rows[i] = rows[i];
-            if(node->rows != NULL)
-                node->rows[i]->id = values[i];
             node->numKeys++;
+            if(rows[i] != NULL) {
+                node->rows[i] = rows[i];
+                node->rows[i]->id = values[i];
+            }
         }
     }
     node->parent = NULL;
@@ -27,7 +28,7 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
 }
 
 BTree *createTree(Node *root) {
-    if(root->isRoot == FALSE) {
+    if (root->isRoot == FALSE) {
         printf("Erreur : impossible de créer un arbre sans un noeud de type racine\n");
         exit(EXIT_FAILURE);
     }
@@ -53,8 +54,8 @@ void freeNode(Node *node) {
             node->children = NULL;
         }
 
-        for(uint8_t i = 0; i <= node->numKeys; i++) {
-                if (node->rows[i] != 0) {
+        for (uint8_t i = 0; i < MAX_KEYS; i++) {
+                if (node->rows[i] != NULL) {
                     free(node->rows[i]);
                     node->rows[i] = NULL;
                 }
@@ -113,6 +114,7 @@ void insertKeyOnNode(uint64_t value, Node *node, Row *row) {
     int8_t i;
     for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
         node->keys[i + 1] = node->keys[i];
+        node->rows[i + 1] = node->rows[i];
     }
 
     node->keys[i + 1] = value;
@@ -168,14 +170,14 @@ void splitNode(Node *node, BTree *tree) {
             leftN->children[i] = node->children[i];
 
             if (leftN->children[i] != NULL) {
-                leftN->children[i]->parent = leftN;  
+                leftN->children[i]->parent = leftN;
             }
         }
 
         for (uint8_t i = medianIndex + 1, j = 0; i <= node->numKeys; i++, j++) {
             rightN->children[j] = node->children[i];
             if (rightN->children[j] != NULL) {
-                rightN->children[j]->parent = rightN;  
+                rightN->children[j]->parent = rightN;
             }
         }
     }
