@@ -4,10 +4,8 @@
 uint64_t getNextId(Node *node) {
     uint64_t max = 0;
 
-    if (node->children != NULL) {
-        while (node->children[node->numKeys] != NULL) {
-            node = node->children[node->numKeys];
-        }
+    while (node->children != NULL && node->numKeys > 0) {
+        node = node->children[node->numKeys];  
     }
 
     if (node->numKeys > 0) {
@@ -18,11 +16,12 @@ uint64_t getNextId(Node *node) {
 }
 
 
+
 void insertData(char name[50], BTree *tr) {
     Row *row = malloc(sizeof(Row));
     if (row == NULL) {
         fprintf(stderr, "Erreur d'allocation\n");
-        return exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
     strcpy(row->name, name);
 
@@ -30,5 +29,6 @@ void insertData(char name[50], BTree *tr) {
     rows[0] = row;
     uint64_t nextId = getNextId(tr->root);
     insertKey(nextId, tr, name);
+    free(row);
     return;
 }

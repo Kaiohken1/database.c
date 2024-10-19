@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[], char* envp[]){
 
-  // uint64_t values[] = {10};
+  // uint64_t values[] = {1};
   // Row *row = malloc(sizeof(Row));
   //   if (row == NULL) {
   //       fprintf(stderr, "Erreur d'allocation\n");
@@ -41,9 +41,12 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  // insertTest(1, tr, row->name);
-  // insertData("Test", tr);
+  // insertTest(5, tr, row->name);
+
   // printTree(tr);
+
+  // uint64_t id = getNextId(tr->root);
+  // printf("Next id : %ld\n", id);
   // freeBTree(tr);
 
   repl();
