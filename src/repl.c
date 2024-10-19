@@ -13,8 +13,8 @@ typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 
 typedef struct {
   StatementType type;
+  char name[255];
 } Statement;
-
 
 
 typedef struct {
@@ -57,10 +57,16 @@ void close_input_buffer(InputBuffer* input_buffer) {
     free(input_buffer);
 }
 
+void closeBtree(BTree *tr) {
+    printTree(tr);
+    freeBTree(tr);
+}
 
-MetaCommandResult do_meta_command(InputBuffer* input_buffer) {
+
+MetaCommandResult do_meta_command(InputBuffer* input_buffer, BTree *tr) {
   if (strcmp(input_buffer->buffer, ".exit") == 0) {
     close_input_buffer(input_buffer);
+    closeBtree(tr);
     exit(EXIT_SUCCESS);
   } else {
     //TODO  here implement handling of other input as .exit
@@ -73,6 +79,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
 
   if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
     statement->type = STATEMENT_INSERT;
+    sscanf(input_buffer->buffer, "insert %s", statement->name);
     return PREPARE_SUCCESS;
   }
   if (strcmp(input_buffer->buffer, "select") == 0) {
@@ -83,10 +90,10 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
   return PREPARE_UNRECOGNIZED_STATEMENT;
 }
 
-void execute_statement(Statement* statement) {
+void execute_statement(Statement* statement, BTree *tr) {
   switch (statement->type) {
     case (STATEMENT_INSERT):
-      
+      insertData(statement->name, tr);
       break;
     case (STATEMENT_SELECT):
       //TODO implement the command here 
@@ -97,11 +104,25 @@ void execute_statement(Statement* statement) {
 
 void repl(void){
   InputBuffer* input_buffer = new_input_buffer();
+  uint64_t values[] = {1};
+  Row *row = malloc(sizeof(Row));
+    if (row == NULL) {
+        fprintf(stderr, "Erreur d'allocation\n");
+        return exit(EXIT_FAILURE);
+    }
+  strcpy(row->name, "Goku");
+
+  Row *rows[1];
+  rows[0] = row;
+
+  Node *root = createNode(values, 1, TRUE, rows);
+  BTree *tr =  createTree(root);
+
   while (true) {
     print_prompt();
     read_input(input_buffer);
     if (input_buffer->buffer[0] == '.') {
-      switch (do_meta_command(input_buffer)) {
+      switch (do_meta_command(input_buffer, tr)) {
         case (META_COMMAND_SUCCESS):
           continue;
         case (META_COMMAND_UNRECOGNIZED_COMMAND):
@@ -119,7 +140,7 @@ void repl(void){
                input_buffer->buffer);
         continue;
     }
-     execute_statement(&statement);
+     execute_statement(&statement, tr);
      printf("Executed.\n");
   }
 }
