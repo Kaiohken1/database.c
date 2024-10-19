@@ -32,3 +32,32 @@ void insertData(char name[50], BTree *tr) {
     free(row);
     return;
 }
+
+void selectAll(Node *node) {
+    if (node == NULL) {
+        return; 
+    }
+
+    if (node->children != NULL) {
+        for (uint8_t i = 0; i < node->numKeys; i++) {
+            if (node->children[i] != NULL) {
+                selectAll(node->children[i]);
+            }
+
+            if (node->rows[i] != NULL) {
+                printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+            }
+        }
+
+        if (node->children[node->numKeys] != NULL) {
+            selectAll(node->children[node->numKeys]);
+        }
+    } else {
+        for (uint8_t i = 0; i < node->numKeys; i++) {
+            if (node->rows[i] != NULL) {
+                printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+            }
+        }
+    }
+}
+

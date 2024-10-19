@@ -14,6 +14,7 @@ typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 typedef struct {
   StatementType type;
   char name[255];
+  char selector[50];
 } Statement;
 
 
@@ -58,7 +59,7 @@ void close_input_buffer(InputBuffer* input_buffer) {
 }
 
 void closeBtree(BTree *tr) {
-    printTree(tr);
+    // printTree(tr);
     freeBTree(tr);
 }
 
@@ -82,8 +83,9 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
     sscanf(input_buffer->buffer, "insert %s", statement->name);
     return PREPARE_SUCCESS;
   }
-  if (strcmp(input_buffer->buffer, "select") == 0) {
+  if (strncmp(input_buffer->buffer, "select", 6) == 0) {
     statement->type = STATEMENT_SELECT;
+    sscanf(input_buffer->buffer, "select %s", statement->selector);
     return PREPARE_SUCCESS;
   }
 
@@ -96,7 +98,9 @@ void execute_statement(Statement* statement, BTree *tr) {
       insertData(statement->name, tr);
       break;
     case (STATEMENT_SELECT):
-      //TODO implement the command here 
+      if (strncmp(statement->selector, "*", 1) == 0) {
+        selectAll(tr->root);
+      }
       break;
   }
 }

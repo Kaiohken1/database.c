@@ -9,5 +9,6 @@
 
 uint64_t getNextId(Node *node);
 void insertData(char *name, BTree *tr);
+void selectAll(Node *node);
 
 #endif
