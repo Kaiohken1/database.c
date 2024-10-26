@@ -108,19 +108,7 @@ void execute_statement(Statement* statement, BTree *tr) {
 
 void repl(void){
   InputBuffer* input_buffer = new_input_buffer();
-  uint64_t values[] = {1};
-  Row *row = malloc(sizeof(Row));
-    if (row == NULL) {
-        fprintf(stderr, "Erreur d'allocation\n");
-        return exit(EXIT_FAILURE);
-    }
-  strcpy(row->name, "Goku");
-
-  Row *rows[1];
-  rows[0] = row;
-
-  Node *root = createNode(values, 1, TRUE, rows);
-  BTree *tr =  createTree(root);
+  BTree *tr =  createTree(NULL);
 
   while (true) {
     print_prompt();

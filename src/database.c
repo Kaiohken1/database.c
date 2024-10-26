@@ -27,9 +27,17 @@ void insertData(char name[50], BTree *tr) {
 
     Row *rows[1];
     rows[0] = row;
-    uint64_t nextId = getNextId(tr->root);
-    insertKey(nextId, tr, name);
-    free(row);
+
+    if(tr->root != NULL) {
+        uint64_t nextId = getNextId(tr->root);
+        insertKey(nextId, tr, name);
+        free(row);
+    } else {
+        uint64_t values[] = {1};
+        Node *node = createNode(values, 1, TRUE, rows);
+        tr->root = node;
+    }
+
     return;
 }
 

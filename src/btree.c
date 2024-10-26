@@ -27,7 +27,7 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
 }
 
 BTree *createTree(Node *root) {
-    if(root->isRoot == FALSE) {
+    if(root != NULL && root->isRoot == FALSE) {
         printf("Erreur : impossible de créer un arbre sans un noeud de type racine\n");
         exit(EXIT_FAILURE);
     }
