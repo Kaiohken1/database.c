@@ -42,7 +42,9 @@ void insertData(char name[50], BTree *tr) {
 }
 
 void selectAll(Node *node) {
+    uint64_t counter = 0;
     if (node == NULL) {
+        printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
         return; 
     }
 
@@ -54,6 +56,7 @@ void selectAll(Node *node) {
 
             if (node->rows[i] != NULL) {
                 printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+                counter++;
             }
         }
 
@@ -64,8 +67,50 @@ void selectAll(Node *node) {
         for (uint8_t i = 0; i < node->numKeys; i++) {
             if (node->rows[i] != NULL) {
                 printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+                counter++;
             }
         }
     }
+    printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
 }
 
+void selectRow(Node *node, char *value) {
+    uint64_t counter = 0;
+    if (node == NULL) {
+        printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
+        return; 
+    }
+
+    char *ptr;
+    uint64_t idValue = strtol(value, &ptr, 10);
+    Bool idSearch = (*ptr == '\0');
+
+    if (node->children != NULL) {
+        for (uint8_t i = 0; i < node->numKeys; i++) {
+            if (node->children[i] != NULL) {
+                selectRow(node->children[i], value);
+            }
+
+            if (node->rows[i] != NULL) {
+                if ((idSearch && node->rows[i]->id == idValue) ||
+                    (!idSearch && strcmp(node->rows[i]->name, value) == 0)) {
+                    printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+                }
+            }
+        }
+
+        if (node->children[node->numKeys] != NULL) {
+            selectRow(node->children[node->numKeys], value);
+        }
+    } else {
+        for (uint8_t i = 0; i < node->numKeys; i++) {
+            if (node->rows[i] != NULL) {
+                if ((idSearch && node->rows[i]->id == idValue) ||
+                    (!idSearch && strcmp(node->rows[i]->name, value) == 0)) {
+                    printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+                }
+            }
+        }
+    }
+    printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
+}

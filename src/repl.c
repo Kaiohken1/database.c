@@ -15,6 +15,7 @@ typedef struct {
   StatementType type;
   char name[255];
   char selector[50];
+  char *searchValue;
 } Statement;
 
 
@@ -100,6 +101,8 @@ void execute_statement(Statement* statement, BTree *tr) {
     case (STATEMENT_SELECT):
       if (strncmp(statement->selector, "*", 1) == 0) {
         selectAll(tr->root);
+      } else {
+        selectRow(tr->root, statement->selector);
       }
       break;
   }
