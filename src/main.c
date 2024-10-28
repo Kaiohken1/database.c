@@ -50,5 +50,7 @@ int main(int argc, char* argv[], char* envp[]){
   // freeBTree(tr);
 
   repl();
+
+
   return 0;
 }
