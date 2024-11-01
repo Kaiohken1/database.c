@@ -11,6 +11,6 @@
 uint64_t getNextId(Node *node);
 void insertData(char *name, BTree *tr);
 void selectAll(Node *node);
-void selectRow(Node *node, char *value, char columns[]);
+void selectRow(Node *node, char *value, char *columnName, char columns[]);
 
 #endif

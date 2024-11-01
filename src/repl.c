@@ -15,7 +15,8 @@ typedef struct {
   StatementType type;
   char name[255];
   char selector[50];
-  char columns[];
+  char columns[255];
+  char columnName[255];
 } Statement;
 
 
@@ -90,7 +91,7 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
       sscanf(input_buffer->buffer, "select %s", statement->selector);
       statement->columns[0] = '\0';
     } else {
-      sscanf(input_buffer->buffer, "select %[^w] where %[^\n]",statement->columns, statement->selector);
+      sscanf(input_buffer->buffer, "select %[^w] where %[^=] = %[^\n]", statement->columns, statement->columnName, statement->selector);
     }
     return PREPARE_SUCCESS;
   }
@@ -107,7 +108,7 @@ void execute_statement(Statement* statement, BTree *tr) {
       if (strncmp(statement->selector, "*", 1) == 0) {
         selectAll(tr->root);
       } else {
-        selectRow(tr->root, statement->selector, statement->columns);
+        selectRow(tr->root, statement->selector, statement->columnName, statement->columns);
       }
       break;
   }
