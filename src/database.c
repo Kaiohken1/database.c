@@ -1,6 +1,8 @@
 #include "btree.h"
 #include "database.h"
 
+uint64_t globalCounter = 0;
+
 uint64_t getNextId(Node *node) {
     uint64_t max = 0;
 
@@ -74,21 +76,61 @@ void selectAll(Node *node) {
     printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
 }
 
-void selectRow(Node *node, char *value, char *columnName, char columns[]) {
-    uint64_t counter = 0;
+//Recherche dichotomique
+void selectRow(Node *node, char *value, Bool isID, Bool isName, Bool idSearch, uint64_t idValue) {
     if (node == NULL) {
-        printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
-        return; 
+         return;
     }
-    Bool isID = FALSE;
-    Bool isName = FALSE;
+
+    uint16_t left = 0;
+    uint16_t right = node->numKeys - 1;
+    Bool match = FALSE;
+
+    while (left <= right) {
+        uint16_t mid = (left + right) / 2;
+
+        if ((idSearch && node->rows[mid]->id == idValue) || (!idSearch && strcmp(node->rows[mid]->name, value) == 0)) {
+            match = TRUE;
+            if (isID) {
+                printf("ID : [%ld] ", node->rows[mid]->id);
+            }
+            if (isName) {
+                printf("Nom : '%s' ", node->rows[mid]->name);
+            }
+            printf("\n");
+
+            globalCounter++;
+            break;
+        }
+
+        if ((idSearch && idValue < node->rows[mid]->id) ||
+            (!idSearch && strcmp(value, node->rows[mid]->name) < 0)) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    if (node->children) {
+        if (!match && left < node->numKeys) {
+            selectRow(node->children[left], value, isID, isName, idSearch, idValue);
+        } else {
+            if (left > 0) {
+                selectRow(node->children[left - 1], value, isID, isName, idSearch, idValue);
+            } 
+            if (left < node->numKeys) {
+                selectRow(node->children[left + 1], value, isID, isName, idSearch, idValue);
+            }
+        }
+    }
+}
+
+void initSelect(Node *root, char *value, char *columnName, char columns[]) {
+    Bool isID = FALSE, isName = FALSE;
     char *parser = strtok(columns, " ,");
     while (parser != NULL) {
-        if (strcmp(parser, "id") == 0) {
-            isID = TRUE;
-        } else if (strcmp(parser, "name") == 0) {
-            isName = TRUE;
-        }
+        if (strcmp(parser, "id") == 0) isID = TRUE;
+        else if (strcmp(parser, "name") == 0) isName = TRUE;
         parser = strtok(NULL, " ,");
     }
 
@@ -96,57 +138,7 @@ void selectRow(Node *node, char *value, char *columnName, char columns[]) {
     uint64_t idValue = strtol(value, &ptr, 10);
     Bool idSearch = (*ptr == '\0');
 
-    if (node->children != NULL) {
-        for (uint8_t i = 0; i < node->numKeys; i++) {
-            if (node->children[i] != NULL) {
-                selectRow(node->children[i], value, columnName, columns);
-            }
-
-            if (node->rows[i] != NULL) {
-                Bool match = FALSE;
-                if (strcmp(columnName, "id ") == 0 && idSearch) {
-                    match = (node->rows[i]->id == idValue);
-                } else if (strcmp(columnName, "name ") == 0 && !idSearch) {
-                    match = (strcmp(node->rows[i]->name, value) == 0);
-                }
-                if (match) {
-                    if (isID) {
-                        printf("ID : [%ld] ", node->rows[i]->id);
-                    }
-                    if (isName) {
-                        printf("Nom : '%s' ", node->rows[i]->name);
-                    }
-                    printf("\n");
-                    counter++;
-                }
-            }
-        }
-
-        if (node->children[node->numKeys] != NULL) {
-            selectRow(node->children[node->numKeys], value, columnName, columns);
-        }
-    } else {
-        for (uint8_t i = 0; i < node->numKeys; i++) {
-            if (node->rows[i] != NULL) {
-                Bool match = FALSE;
-                if (strcmp(columnName, "id ") == 0 && idSearch) {
-                    match = (node->rows[i]->id == idValue);
-                } else if (strcmp(columnName, "name ") == 0 && !idSearch) {
-                    match = (strcmp(node->rows[i]->name, value) == 0);
-                }
-
-                if (match) {
-                    if (isID) {
-                        printf("ID : [%ld] ", node->rows[i]->id);
-                    }
-                    if (isName) {
-                        printf("Nom : '%s' ", node->rows[i]->name);
-                    }
-                    printf("\n");
-                    counter++;
-                }
-            }
-        }
-    }
-    printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
+    globalCounter = 0; 
+    selectRow(root, value, isID, isName, idSearch, idValue);
+    printf("%ld résultat%s\n", globalCounter, globalCounter == 1 ? "" : "s");
 }

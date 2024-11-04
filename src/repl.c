@@ -108,7 +108,7 @@ void execute_statement(Statement* statement, BTree *tr) {
       if (strncmp(statement->selector, "*", 1) == 0) {
         selectAll(tr->root);
       } else {
-        selectRow(tr->root, statement->selector, statement->columnName, statement->columns);
+        initSelect(tr->root, statement->selector, statement->columnName, statement->columns);
       }
       break;
   }
