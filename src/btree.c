@@ -246,7 +246,7 @@ void changeRoot(Node *node, BTree *tree) {
     printf("Noeud racine changé à %ld\n", tree->root->keys[0]);
 }
 
-void printNode(Node *node) {
+void printNode(Node *node, Bool withRows) {
     for (uint8_t i = 0; i < node->numKeys; i++) {
         printf("[%ld] ", node->keys[i]);
     }
@@ -260,33 +260,35 @@ void printNode(Node *node) {
     }
     printf("\n");
 
-    for(uint8_t i = 0; i < node->numKeys; i++) {
-        if (node->rows[i] != 0) {
-            printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+    if(withRows) {
+        for(uint8_t i = 0; i < node->numKeys; i++) {
+            if (node->rows[i] != 0) {
+                printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+            }
         }
     }
 }
 
-void printTree(BTree *tree) {
+void printTree(BTree *tree, Bool withRows) {
     if (tree == NULL || tree->root == NULL) {
         printf("L'arbre est vide.\n");
         return;
     }
 
-    printTreeHelper(tree->root);
+    printTreeHelper(tree->root, withRows);
 }
 
-void printTreeHelper(Node *node) {
+void printTreeHelper(Node *node, Bool withRows) {
     if (node == NULL) {
         return;
     }
 
-    printNode(node);
+    printNode(node, withRows);
 
     if (node->children != NULL) {
         for (uint8_t i = 0; i <= node->numKeys; i++) {
             if (node->children[i] != NULL) {
-                printTreeHelper(node->children[i]);
+                printTreeHelper(node->children[i], withRows);
             }
         }
     }
@@ -300,6 +302,68 @@ void insertTest(uint8_t max, BTree *tr, char name[50]) {
 
     for(uint8_t i = 2; i <= max; i++) {
         insertKey(i, tr, name);
+    }
+}
+
+uint64_t getKey(BTree *tr, uint64_t value) {
+    Node *node = tr->root;
+
+    while (node != NULL) {
+        int i;
+        for (i = 0; i < node->numKeys; i++) {
+            if (node->keys[i] == value) {
+                return node->keys[i];
+            } else if (node->keys[i] > value) {
+                break;
+            }
+        }
+        if (node->children == NULL) {
+            return 0;
+        } else {
+            node = node->children[i];
+        }
+    }
+    return 0;
+}
+
+void deleteKey(BTree *tr, uint64_t value) {
+    Node *node = tr->root;
+    Bool keyDeleted = FALSE;
+
+    while (node != NULL && !keyDeleted) {
+        for (int8_t i = 0; i < node->numKeys; i++) {
+            uint8_t maxIndex = node->numKeys - 1;
+            if (node->keys[i] == value) {
+                free(node->rows[i]);
+                node->rows[i] = NULL;
+                for (uint8_t j = i; j < maxIndex; j++) {
+                    node->keys[j] = node->keys[j + 1];
+                    node->rows[j] = node->rows[j + 1];
+                }
+                node->keys[maxIndex] = 0;
+                node->rows[maxIndex] = NULL;
+                node->numKeys--;
+                keyDeleted = TRUE;
+                break;
+            }
+        }
+
+        if (keyDeleted) {
+            break;
+        }
+
+        int8_t childPos = node->numKeys;
+        while (childPos > 0 && value < node->keys[childPos - 1]) {
+            childPos--;
+        }
+
+        node = node->children[childPos];
+    }
+
+    if (keyDeleted) {
+        printNode(node, TRUE);
+    } else {
+        printf("Clé %ld non trouvée dans l'arbre.\n", value);
     }
 }
 

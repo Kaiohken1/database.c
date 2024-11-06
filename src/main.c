@@ -9,21 +9,21 @@
 
 int main(int argc, char* argv[], char* envp[]){
 
-  // uint64_t values[] = {1};
-  // Row *row = malloc(sizeof(Row));
-  //   if (row == NULL) {
-  //       fprintf(stderr, "Erreur d'allocation\n");
-  //       return 1;
-  //   }
-  // strcpy(row->name, "aa");
+  uint64_t values[] = {1};
+  Row *row = malloc(sizeof(Row));
+    if (row == NULL) {
+        fprintf(stderr, "Erreur d'allocation\n");
+        return 1;
+    }
+  strcpy(row->name, "aa");
 
-  // Row *rows[1];
-  // rows[0] = row;
+  Row *rows[1];
+  rows[0] = row;
 
-  // Node *root = createNode(values, 1, TRUE, rows);
-  // BTree *tr =  createTree(root);
+  Node *root = createNode(values, 1, TRUE, rows);
+  BTree *tr =  createTree(root);
 
-  // printf("Création de l'arbre avec comme valeur : %ld\n", tr->root->keys[0]);
+  printf("Création de l'arbre avec comme valeur : %ld\n", tr->root->keys[0]);
   // insertKey(15, tr);
   // insertKey(9, tr);
   // insertKey(20, tr);
@@ -41,15 +41,15 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(28, tr);
   // insertKey(70, tr);
 
-  // insertTest(5, tr, row->name);
+  insertTest(5, tr, row->name);
+  deleteKey(tr, 1);
 
-  // printTree(tr);
-
+  // printTree(tr, FALSE);
   // uint64_t id = getNextId(tr->root);
   // printf("Next id : %ld\n", id);
-  // freeBTree(tr);
+  freeBTree(tr);
 
-  repl();
+  // repl();
 
 
   return 0;

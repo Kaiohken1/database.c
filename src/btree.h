@@ -37,13 +37,15 @@ BTree *createTree(Node *root);
 void freeNode(Node *node);
 void freeBTree(BTree *tree);
 void insertKey(uint64_t value, BTree *tree, char name[50]);
-void printNode(Node *node);
+void printNode(Node *node, Bool withRows);
 void splitNode(Node *node, BTree *tree);
 void changeRoot(Node *node, BTree *tree);
-void printTree(BTree *tree);
-void printTreeHelper(Node *node);
+void printTree(BTree *tree, Bool withRows);
+void printTreeHelper(Node *node, Bool withRows);
 void insertKeyOnNode(uint64_t value, Node *node, Row *row);
 uint8_t findChildPosition(Node *parent, Node *child);
 void insertTest(uint8_t max, BTree *tr, char name[50]);
+uint64_t getKey(BTree *tr, uint64_t value);
+void deleteKey(BTree *tr, uint64_t value);
 
 #endif
