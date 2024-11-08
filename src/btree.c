@@ -341,23 +341,24 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug) {
         for (int8_t i = 0; i < node->numKeys; i++) {
             uint8_t maxIndex = node->numKeys - 1;
             if (node->keys[i] == value) {
-                if (node->numKeys > MIN_KEYS) {
-                    free(node->rows[i]);
-                    node->rows[i] = NULL;
-                    for (uint8_t j = i; j < maxIndex; j++) {
-                        node->keys[j] = node->keys[j + 1];
-                        node->rows[j] = node->rows[j + 1];
-                    }
-                    node->keys[maxIndex] = 0;
-                    node->rows[maxIndex] = NULL;
-                    node->numKeys--;
-                    keyDeleted = TRUE;
-                    break;
-                } else {
-                    rebalanceNode(node);
-                    keyDeleted = TRUE;
-                    break;
+                free(node->rows[i]);
+                node->rows[i] = NULL;
+
+                for (uint8_t j = i; j < maxIndex; j++) {
+                    node->keys[j] = node->keys[j + 1];
+                    node->rows[j] = node->rows[j + 1];
                 }
+
+                node->keys[maxIndex] = 0;
+                node->rows[maxIndex] = NULL;
+                node->numKeys--;
+
+                keyDeleted = TRUE;
+
+                if (node->numKeys < MIN_KEYS) {
+                    rebalanceNode(node);
+                }
+                break;
             }
         }
 
@@ -379,7 +380,7 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug) {
 
     if (debug) {
         printf("--------- Supression de %ld -------------\n", value);
-        printTree(tr, FALSE);
+        printTree(tr, TRUE);
     }
 }
 
@@ -413,24 +414,35 @@ void rebalanceNode(Node *node) {
 
 void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection) {
     if(rightDirection) {
-        node->keys[node->numKeys - 1] = parent->keys[index];
+        node->keys[node->numKeys] = parent->keys[index];
+        node->rows[node->numKeys] = parent->rows[index];
+        node->numKeys++;
 
         parent->keys[index] = sibling->keys[0];
+        parent->rows[index] = sibling->rows[0];
 
         for (uint8_t i = 0; i < sibling->numKeys - 1; i++) {
             sibling->keys[i] = sibling->keys[i + 1];
+            sibling->rows[i] = sibling->rows[i + 1];
         }
+
         sibling->keys[sibling->numKeys - 1] = 0;
+        sibling->rows[sibling->numKeys - 1] = NULL;
         sibling->numKeys--;
     } else {
         index -= 1;
 
         for (int8_t i = node->numKeys; i > 0; i--) {
             node->keys[i] = node->keys[i - 1];
+            node->rows[i] = node->rows[i - 1];
         }
+        node->numKeys++;
+
         node->keys[0] = parent->keys[index];
+        node->rows[0] = parent->rows[index];
 
         parent->keys[index] = sibling->keys[sibling->numKeys - 1];
+        parent->rows[index] = sibling->rows[sibling->numKeys - 1];
 
         sibling->numKeys--;
     }

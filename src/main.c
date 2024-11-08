@@ -37,10 +37,12 @@ int main(int argc, char* argv[], char* envp[]){
 
 
   // insertTest(5, tr, row->name);
-  printTree(tr, FALSE);
+  printTree(tr, TRUE);
   deleteKey(tr, 14, TRUE);
   deleteKey(tr, 15, TRUE);
-  deleteKey(tr, 16, TRUE);
+  deleteKey(tr, 18, TRUE);
+  insertKey(11, tr, row->name);
+  deleteKey(tr, 7, TRUE);
   // uint64_t id = getNextId(tr->root);
   // printf("Next id : %ld\n", id);
   freeBTree(tr);
