@@ -24,27 +24,23 @@ int main(int argc, char* argv[], char* envp[]){
   BTree *tr =  createTree(root);
 
   printf("Création de l'arbre avec comme valeur : %ld\n", tr->root->keys[0]);
-  // insertKey(15, tr);
-  // insertKey(9, tr);
-  // insertKey(20, tr);
-  // insertKey(7, tr);
-  // insertKey(39, tr);
-  // insertKey(18, tr);
-  // insertKey(95, tr);
-  // insertKey(100, tr);
-  // insertKey(25, tr);
-  // insertKey(79, tr);
-  // insertKey(19, tr);
-  // insertKey(17, tr);
-  // insertKey(16, tr);
-  // insertKey(26, tr);
-  // insertKey(28, tr);
-  // insertKey(70, tr);
+  insertKey(7, tr, row->name);
+  insertKey(8, tr, row->name);
+  insertKey(9, tr, row->name);
+  insertKey(12, tr, row->name);
+  insertKey(13, tr, row->name);
+  insertKey(14, tr, row->name);
+  insertKey(16, tr, row->name);
+  insertKey(18, tr, row->name);
+  insertKey(15, tr, row->name);
+  insertKey(10, tr, row->name);
 
-  insertTest(5, tr, row->name);
-  deleteKey(tr, 1);
 
-  // printTree(tr, FALSE);
+  // insertTest(5, tr, row->name);
+  printTree(tr, FALSE);
+  deleteKey(tr, 14, TRUE);
+  deleteKey(tr, 15, TRUE);
+  deleteKey(tr, 16, TRUE);
   // uint64_t id = getNextId(tr->root);
   // printf("Next id : %ld\n", id);
   freeBTree(tr);

@@ -326,7 +326,14 @@ uint64_t getKey(BTree *tr, uint64_t value) {
     return 0;
 }
 
-void deleteKey(BTree *tr, uint64_t value) {
+/**
+ * Supression d'une clé dans l'arbre
+ * @param BTree tr
+ * @param uint64_t value
+ * @param Bool debug
+ * @return void
+ */
+void deleteKey(BTree *tr, uint64_t value, Bool debug) {
     Node *node = tr->root;
     Bool keyDeleted = FALSE;
 
@@ -334,17 +341,23 @@ void deleteKey(BTree *tr, uint64_t value) {
         for (int8_t i = 0; i < node->numKeys; i++) {
             uint8_t maxIndex = node->numKeys - 1;
             if (node->keys[i] == value) {
-                free(node->rows[i]);
-                node->rows[i] = NULL;
-                for (uint8_t j = i; j < maxIndex; j++) {
-                    node->keys[j] = node->keys[j + 1];
-                    node->rows[j] = node->rows[j + 1];
+                if (node->numKeys > MIN_KEYS) {
+                    free(node->rows[i]);
+                    node->rows[i] = NULL;
+                    for (uint8_t j = i; j < maxIndex; j++) {
+                        node->keys[j] = node->keys[j + 1];
+                        node->rows[j] = node->rows[j + 1];
+                    }
+                    node->keys[maxIndex] = 0;
+                    node->rows[maxIndex] = NULL;
+                    node->numKeys--;
+                    keyDeleted = TRUE;
+                    break;
+                } else {
+                    rebalanceNode(node);
+                    keyDeleted = TRUE;
+                    break;
                 }
-                node->keys[maxIndex] = 0;
-                node->rows[maxIndex] = NULL;
-                node->numKeys--;
-                keyDeleted = TRUE;
-                break;
             }
         }
 
@@ -360,10 +373,65 @@ void deleteKey(BTree *tr, uint64_t value) {
         node = node->children[childPos];
     }
 
-    if (keyDeleted) {
-        printNode(node, TRUE);
-    } else {
+    if(!keyDeleted) {
         printf("Clé %ld non trouvée dans l'arbre.\n", value);
+    }
+
+    if (debug) {
+        printf("--------- Supression de %ld -------------\n", value);
+        printTree(tr, FALSE);
     }
 }
 
+void rebalanceNode(Node *node) {
+    Node *parent = node->parent;
+    if(parent == NULL) {
+        return;
+    }
+
+    int8_t index = -1;
+    for(uint8_t i = 0; i <= parent->numKeys; i++) {
+        if(parent->children[i] == node) {
+            index = i;
+            break;
+        }
+    }
+
+    if(index == -1) {
+        fprintf(stderr, "Erreur : le noeud donné n'a pas été retrouvé chez son parent");
+        return;
+    }
+
+    Node *leftSib = index > 0 ? parent->children[index - 1] : NULL;
+    Node *rightSib = index < parent->numKeys ? parent->children[index + 1]: NULL;
+    if (rightSib != NULL && rightSib->numKeys > MIN_KEYS) {
+        shiftKeys(node, parent, rightSib, index, TRUE);
+    } else if (leftSib != NULL && leftSib->numKeys > MIN_KEYS) {
+        shiftKeys(node, parent, leftSib, index, FALSE);
+    };
+}
+
+void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection) {
+    if(rightDirection) {
+        node->keys[node->numKeys - 1] = parent->keys[index];
+
+        parent->keys[index] = sibling->keys[0];
+
+        for (uint8_t i = 0; i < sibling->numKeys - 1; i++) {
+            sibling->keys[i] = sibling->keys[i + 1];
+        }
+        sibling->keys[sibling->numKeys - 1] = 0;
+        sibling->numKeys--;
+    } else {
+        index -= 1;
+
+        for (int8_t i = node->numKeys; i > 0; i--) {
+            node->keys[i] = node->keys[i - 1];
+        }
+        node->keys[0] = parent->keys[index];
+
+        parent->keys[index] = sibling->keys[sibling->numKeys - 1];
+
+        sibling->numKeys--;
+    }
+}
