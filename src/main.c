@@ -43,6 +43,7 @@ int main(int argc, char* argv[], char* envp[]){
   deleteKey(tr, 18, TRUE);
   insertKey(11, tr, row->name);
   deleteKey(tr, 7, TRUE);
+  deleteKey(tr, 11, TRUE);
   // uint64_t id = getNextId(tr->root);
   // printf("Next id : %ld\n", id);
   freeBTree(tr);

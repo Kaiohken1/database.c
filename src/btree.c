@@ -409,6 +409,13 @@ void rebalanceNode(Node *node) {
         shiftKeys(node, parent, rightSib, index, TRUE);
     } else if (leftSib != NULL && leftSib->numKeys > MIN_KEYS) {
         shiftKeys(node, parent, leftSib, index, FALSE);
+    } else if (rightSib) {
+        mergeNodes(node, parent, rightSib, index, TRUE);
+    } else if (leftSib) {
+        mergeNodes(node, parent, rightSib, index, FALSE);
+    } else {
+        fprintf(stderr, "Erreur : impossible de supprimer la clé du noeud");
+        return;
     };
 }
 
@@ -447,3 +454,53 @@ void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool right
         sibling->numKeys--;
     }
 }
+
+
+void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection) {
+    sibling->keys[sibling->numKeys] = parent->keys[parentIndex];
+    sibling->numKeys++;
+
+    for (uint8_t i = 0; i < node->numKeys; i++) {
+        sibling->keys[sibling->numKeys] = node->keys[i];
+        sibling->numKeys++;
+    }
+
+    if (node->children != NULL) {
+        for (uint8_t i = 0; i <= node->numKeys; i++) {
+            sibling->children[sibling->numKeys + i] = node->children[i];
+            node->children[i] = NULL;
+        }
+
+        for (uint8_t i = sibling->numKeys; i < sibling->numKeys + node->numKeys + 1; i++) {
+            sibling->children[i]->parent = sibling;
+        }
+
+        free(node->children);
+        node->children = NULL;
+    }
+
+    if(rightDirection) {
+        parent->children[parentIndex] = parent->children[parentIndex + 1]; 
+    } else {
+        parent->children[parentIndex] = parent->children[parentIndex - 1]; 
+    }
+    parent->children[parent->numKeys] = NULL; 
+    parent->numKeys--;
+
+    for (uint8_t i = 1; i < sibling->numKeys; i++) {
+        uint64_t key = sibling->keys[i];
+        uint8_t j = i;
+        while (j > 0 && sibling->keys[j - 1] > key) {
+            sibling->keys[j] = sibling->keys[j - 1];
+            j--;
+        }
+        sibling->keys[j] = key;
+    }
+    freeNode(node);
+}
+
+
+
+
+
+
