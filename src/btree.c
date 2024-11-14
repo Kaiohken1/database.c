@@ -113,15 +113,16 @@ void insertKeyOnNode(uint64_t value, Node *node, Row *row) {
     int8_t i;
     for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
         node->keys[i + 1] = node->keys[i];
+        node->rows[i + 1] = node->rows[i];  
     }
 
     node->keys[i + 1] = value;
-
     row->id = value;
-    node->rows[i+1] = row;
+    node->rows[i + 1] = row;
 
     node->numKeys++;
 }
+
 
 //Ici on reçoit un noeud qui dépasse la taille maximale autorisée
 //il faut donc le scinder en deux et isoler sa valeur médianne pour la transformer en parent
