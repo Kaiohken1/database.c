@@ -418,6 +418,10 @@ void rebalanceNode(Node *node) {
         fprintf(stderr, "Erreur : impossible de supprimer la clé du noeud");
         return;
     };
+
+    if (parent->numKeys < MIN_KEYS) {
+        rebalanceNode(parent);  // Appel récursif sur le parent si déséquilibré
+    }
 }
 
 void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection) {
