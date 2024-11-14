@@ -53,4 +53,5 @@ void rebalanceNode(Node *node);
 void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection);
 Bool keyExists(BTree *tr, uint64_t value);
 void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection);
+Row *cloneRow(Row* original);
 #endif

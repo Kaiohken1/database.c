@@ -458,10 +458,12 @@ void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool right
 
 void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection) {
     sibling->keys[sibling->numKeys] = parent->keys[parentIndex];
+    sibling->rows[sibling->numKeys] = cloneRow(parent->rows[parentIndex]);
     sibling->numKeys++;
 
     for (uint8_t i = 0; i < node->numKeys; i++) {
         sibling->keys[sibling->numKeys] = node->keys[i];
+        sibling->rows[sibling->numKeys] = cloneRow(node->rows[i]);
         sibling->numKeys++;
     }
 
@@ -479,25 +481,49 @@ void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bo
         node->children = NULL;
     }
 
-    if(rightDirection) {
-        parent->children[parentIndex] = parent->children[parentIndex + 1]; 
+    if (rightDirection) {
+        for (uint8_t i = parentIndex; i < parent->numKeys; i++) {
+            parent->children[i] = parent->children[i + 1];
+        }
     } else {
-        parent->children[parentIndex] = parent->children[parentIndex - 1]; 
+        for (uint8_t i = parentIndex; i < parent->numKeys; i++) {
+            parent->children[i] = parent->children[i - 1];
+        }
     }
-    parent->children[parent->numKeys] = NULL; 
+    parent->children[parent->numKeys] = NULL;
     parent->numKeys--;
 
     for (uint8_t i = 1; i < sibling->numKeys; i++) {
         uint64_t key = sibling->keys[i];
+        Row *row = sibling->rows[i];
         uint8_t j = i;
+
         while (j > 0 && sibling->keys[j - 1] > key) {
             sibling->keys[j] = sibling->keys[j - 1];
+            sibling->rows[j] = sibling->rows[j - 1];
             j--;
         }
+
         sibling->keys[j] = key;
+        sibling->rows[j] = row;
     }
+
     freeNode(node);
 }
+
+Row *cloneRow(Row *original) {
+    if (original == NULL) {
+        return NULL;
+    }
+
+    Row* newRow = malloc(sizeof(Row));
+    if (newRow) {
+        *newRow = *original;
+    }
+    return newRow;
+}
+
+
 
 
 

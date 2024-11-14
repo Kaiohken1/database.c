@@ -27,10 +27,10 @@ int main(int argc, char* argv[], char* envp[]){
   insertKey(7, tr, row->name);
   insertKey(8, tr, row->name);
   insertKey(9, tr, row->name);
-  insertKey(12, tr, row->name);
+  // insertKey(12, tr, row->name);
   insertKey(13, tr, row->name);
   insertKey(14, tr, row->name);
-  insertKey(16, tr, row->name);
+  // insertKey(16, tr, row->name);
   insertKey(18, tr, row->name);
   insertKey(15, tr, row->name);
   insertKey(10, tr, row->name);
