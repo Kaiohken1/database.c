@@ -9,7 +9,7 @@ typedef enum {
 
 typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT } PrepareResult;
 
-typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
+typedef enum { STATEMENT_INSERT, STATEMENT_SELECT, STATEMENT_DELETE } StatementType;
 
 typedef struct {
   StatementType type;
@@ -95,6 +95,11 @@ PrepareResult prepare_statement(InputBuffer* input_buffer,
     }
     return PREPARE_SUCCESS;
   }
+  if (strncmp(input_buffer->buffer, "delete", 6) == 0) {
+    statement->type = STATEMENT_DELETE;
+    sscanf(input_buffer->buffer, "delete where %[^=] = %[^\n]", statement->columnName, statement->selector);
+    return PREPARE_SUCCESS;
+  }
 
   return PREPARE_UNRECOGNIZED_STATEMENT;
 }
@@ -110,6 +115,9 @@ void execute_statement(Statement* statement, BTree *tr) {
       } else {
         initSelect(tr->root, statement->selector, statement->columnName, statement->columns);
       }
+      break;
+    case (STATEMENT_DELETE):
+      initDelete(tr, statement->selector);
       break;
   }
 }

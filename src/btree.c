@@ -419,7 +419,7 @@ void rebalanceNode(Node *node) {
         return;
     };
 
-    if (parent->numKeys < MIN_KEYS) {
+    if (parent->numKeys < MIN_KEYS && !parent->isRoot) {
         rebalanceNode(parent);  // Appel récursif sur le parent si déséquilibré
     }
 }
