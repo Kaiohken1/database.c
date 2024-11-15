@@ -356,8 +356,8 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug) {
 
                 keyDeleted = TRUE;
 
-                if (node->numKeys < MIN_KEYS) {
-                    rebalanceNode(node);
+                if (node->numKeys < MIN_KEYS && !node->isRoot) {
+                    rebalanceNode(node, tr);
                 }
                 break;
             }
@@ -385,7 +385,7 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug) {
     }
 }
 
-void rebalanceNode(Node *node) {
+void rebalanceNode(Node *node, BTree *tr) {
     Node *parent = node->parent;
     if(parent == NULL) {
         return;
@@ -404,23 +404,28 @@ void rebalanceNode(Node *node) {
         return;
     }
 
+    if (parent->isRoot && parent->numKeys == 1) {
+        pushToRoot(node, parent, index);
+        return;
+    }
+
     Node *leftSib = index > 0 ? parent->children[index - 1] : NULL;
     Node *rightSib = index < parent->numKeys ? parent->children[index + 1]: NULL;
     if (rightSib != NULL && rightSib->numKeys > MIN_KEYS) {
         shiftKeys(node, parent, rightSib, index, TRUE);
     } else if (leftSib != NULL && leftSib->numKeys > MIN_KEYS) {
         shiftKeys(node, parent, leftSib, index, FALSE);
-    } else if (rightSib) {
-        mergeNodes(node, parent, rightSib, index, TRUE);
-    } else if (leftSib) {
-        mergeNodes(node, parent, rightSib, index, FALSE);
+    } else if (rightSib != NULL) {
+        mergeNodes(node, parent, rightSib, index, TRUE, tr);
+    } else if (leftSib != NULL) {
+        mergeNodes(node, parent, leftSib, index, FALSE, tr);
     } else {
         fprintf(stderr, "Erreur : impossible de supprimer la clé du noeud");
         return;
-    };
+    }
 
     if (parent->numKeys < MIN_KEYS && !parent->isRoot) {
-        rebalanceNode(parent);  // Appel récursif sur le parent si déséquilibré
+        rebalanceNode(parent, tr);
     }
 }
 
@@ -461,7 +466,7 @@ void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool right
 }
 
 
-void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection) {
+void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr) {
     sibling->keys[sibling->numKeys] = parent->keys[parentIndex];
     sibling->rows[sibling->numKeys] = cloneRow(parent->rows[parentIndex]);
     sibling->numKeys++;
@@ -529,7 +534,22 @@ Row *cloneRow(Row *original) {
 }
 
 
+void pushToRoot(Node *node, Node *root, int8_t index) {
+    if (index > 0) { 
+        root->keys[1] = node->keys[0];
+        root->rows[1] = cloneRow(node->rows[0]);
+    } else {
+        root->keys[1] = root->keys[0];
+        root->rows[1] = cloneRow(root->rows[0]);
 
+        root->keys[0] = node->keys[0];
+        root->rows[0] = cloneRow(node->rows[0]);
+    }
+
+    root->numKeys++;
+    root->children[index] = NULL;
+    freeNode(node);
+}
 
 
 

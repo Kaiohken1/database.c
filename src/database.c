@@ -171,18 +171,12 @@ void deleteRow(BTree *tr, Node *node, char *value, Bool idSearch, uint64_t idVal
     }
 
     if (node->children) {
-        if (!match && left < node->numKeys) {
+        if (left <= node->numKeys) {
             deleteRow(tr, node->children[left], value, idSearch, idValue);
-        } else {
-            if (left > 0) {
-                deleteRow(tr, node->children[left - 1], value, idSearch, idValue);
-            }
-            if (left < node->numKeys) {
-                deleteRow(tr, node->children[left + 1], value, idSearch, idValue);
-            }
         }
     }
 }
+
 
 
 void initDelete(BTree *tr, char *value) {

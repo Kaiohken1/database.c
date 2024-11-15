@@ -49,9 +49,10 @@ uint8_t findChildPosition(Node *parent, Node *child);
 void insertTest(uint8_t max, BTree *tr, char name[50]);
 uint64_t getKey(BTree *tr, uint64_t value);
 void deleteKey(BTree *tr, uint64_t value, Bool debug);
-void rebalanceNode(Node *node);
+void rebalanceNode(Node *node, BTree *tr);
 void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection);
 Bool keyExists(BTree *tr, uint64_t value);
-void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection);
+void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr);
 Row *cloneRow(Row* original);
+void pushToRoot(Node *node, Node *root, int8_t index);
 #endif
