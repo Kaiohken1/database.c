@@ -345,6 +345,12 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug) {
                 free(node->rows[i]);
                 node->rows[i] = NULL;
 
+                if (node->children != NULL) {
+                    takeFromChild(node, i, tr);
+                    keyDeleted = TRUE;
+                    break;
+                }
+
                 for (uint8_t j = i; j < maxIndex; j++) {
                     node->keys[j] = node->keys[j + 1];
                     node->rows[j] = node->rows[j + 1];
@@ -551,7 +557,44 @@ void pushToRoot(Node *node, Node *root, int8_t index) {
     freeNode(node);
 }
 
+void takeFromChild(Node *node, uint8_t i, BTree *tr) {
+    if (i + 1 <= node->numKeys && node->children[i + 1] != NULL) {
+        Node *child = node->children[i + 1];
+        node->keys[i] = child->keys[0];
+        node->rows[i] = cloneRow(child->rows[0]);
 
+        free(child->rows[0]);
+
+        for (int j = 0; j < child->numKeys - 1; j++) {
+            child->keys[j] = child->keys[j + 1];
+            child->rows[j] = cloneRow(child->rows[j + 1]);
+        }
+
+        child->numKeys--;
+
+        if (child->numKeys < MIN_KEYS) {
+            rebalanceNode(child, tr);
+        }
+        return;
+
+    } else if (i >= 0 && node->children[i] != NULL) {
+        Node *child = node->children[i];
+        node->keys[i] = child->keys[child->numKeys - 1];
+        node->rows[i] = cloneRow(child->rows[child->numKeys - 1]);
+
+        free(child->rows[child->numKeys - 1]);
+
+        child->numKeys--;
+
+        if (child->numKeys < MIN_KEYS) {
+            rebalanceNode(child, tr);
+        }
+        return;
+    }
+
+    fprintf(stderr, "Erreur lors de la suppression d'une clé avec des enfants liés");
+    return;
+}
 
 
 

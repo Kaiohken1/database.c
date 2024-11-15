@@ -36,9 +36,15 @@ int main(int argc, char* argv[], char* envp[]){
   // insertKey(10, tr, row->name);
 
 
-  insertTest(5, tr, row->name);
+  insertTest(20, tr, row->name);
   printTree(tr, TRUE);
-  deleteKey(tr, 1, TRUE);
+  deleteKey(tr, 15, TRUE);
+  // deleteKey(tr, 1, TRUE);
+  // insertKey(8, tr, row->name);
+  // insertKey(10, tr, row->name);
+  // insertKey(11, tr, row->name);
+  // printTree(tr, TRUE);
+
   // deleteKey(tr, 15, TRUE);
   // deleteKey(tr, 18, TRUE);
   // insertKey(11, tr, row->name);

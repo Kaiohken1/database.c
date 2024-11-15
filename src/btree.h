@@ -55,4 +55,5 @@ Bool keyExists(BTree *tr, uint64_t value);
 void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr);
 Row *cloneRow(Row* original);
 void pushToRoot(Node *node, Node *root, int8_t index);
+void takeFromChild(Node *node, uint8_t i, BTree *tr);
 #endif
