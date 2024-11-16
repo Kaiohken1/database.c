@@ -1,5 +1,6 @@
 #include "repl.h"
 #include "database.h"
+#include "storage.h"
 
 
 typedef enum {
@@ -66,16 +67,23 @@ void closeBtree(BTree *tr) {
 }
 
 
-MetaCommandResult do_meta_command(InputBuffer* input_buffer, BTree *tr) {
+MetaCommandResult do_meta_command(InputBuffer* input_buffer, BTree **tr) {
   if (strcmp(input_buffer->buffer, ".exit") == 0) {
     close_input_buffer(input_buffer);
-    closeBtree(tr);
+    closeBtree(*tr);
     exit(EXIT_SUCCESS);
+  } else if (strcmp(input_buffer->buffer, ".save") == 0) {
+    saveBTree(*tr);
+    return META_COMMAND_SUCCESS;
+  } else if (strcmp(input_buffer->buffer, ".load") == 0) {
+    freeBTree(*tr); 
+    *tr = loadBTree();
+    return META_COMMAND_SUCCESS;
   } else {
-    //TODO  here implement handling of other input as .exit
     return META_COMMAND_UNRECOGNIZED_COMMAND;
   }
 }
+
 
 PrepareResult prepare_statement(InputBuffer* input_buffer,
                                 Statement* statement) {
@@ -131,7 +139,7 @@ void repl(void){
     print_prompt();
     read_input(input_buffer);
     if (input_buffer->buffer[0] == '.') {
-      switch (do_meta_command(input_buffer, tr)) {
+      switch (do_meta_command(input_buffer, &tr)) {
         case (META_COMMAND_SUCCESS):
           continue;
         case (META_COMMAND_UNRECOGNIZED_COMMAND):
