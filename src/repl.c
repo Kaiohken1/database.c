@@ -111,7 +111,7 @@ void execute_statement(Statement* statement, BTree *tr) {
       break;
     case (STATEMENT_SELECT):
       if (strncmp(statement->selector, "*", 1) == 0) {
-        selectAll(tr->root);
+        initSelectAll(tr->root);
       } else {
         initSelect(tr->root, statement->selector, statement->columnName, statement->columns);
       }

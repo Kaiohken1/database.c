@@ -45,9 +45,7 @@ void insertData(char name[50], BTree *tr) {
 }
 
 void selectAll(Node *node) {
-    uint64_t counter = 0;
     if (node == NULL) {
-        printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
         return; 
     }
 
@@ -58,24 +56,31 @@ void selectAll(Node *node) {
             }
 
             if (node->rows[i] != NULL) {
-                printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
-                counter++;
+                printf("ID : [%ld] Name : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+                globalCounter++;
             }
         }
 
         if (node->children[node->numKeys] != NULL) {
             selectAll(node->children[node->numKeys]);
         }
-    } else {
+    } else { 
         for (uint8_t i = 0; i < node->numKeys; i++) {
             if (node->rows[i] != NULL) {
-                printf("ID : [%ld] Nom : '%s'\n", node->rows[i]->id, node->rows[i]->name);
-                counter++;
+                printf("ID : [%ld] Name : '%s'\n", node->rows[i]->id, node->rows[i]->name);
+                globalCounter++;
             }
         }
     }
-    printf("%ld résultat%s\n", counter, counter == 1 ? "" : "s");
 }
+
+
+void initSelectAll(Node *root) {
+    globalCounter= 0;
+    selectAll(root);
+    printf("%ld résultat%s\n", globalCounter, globalCounter == 1 ? "" : "s");
+}
+
 
 //Recherche dichotomique
 void selectRow(Node *node, char *value, Bool isID, Bool isName, Bool idSearch, uint64_t idValue) {
@@ -96,7 +101,7 @@ void selectRow(Node *node, char *value, Bool isID, Bool isName, Bool idSearch, u
                 printf("ID : [%ld] ", node->rows[mid]->id);
             }
             if (isName) {
-                printf("Nom : '%s' ", node->rows[mid]->name);
+                printf("Name : '%s' ", node->rows[mid]->name);
             }
             printf("\n");
 

@@ -15,5 +15,6 @@ void selectRow(Node *node, char *value, Bool isID, Bool isName, Bool idSearch, u
 void initSelect(Node *root, char *value, char *columnName, char columns[]);
 void deleteRow(BTree *tr, Node *node, char *value, Bool idSearch, uint64_t idValue);
 void initDelete(BTree *tr, char *value);
+void initSelectAll(Node *root);
 
 #endif
