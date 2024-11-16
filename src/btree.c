@@ -398,7 +398,7 @@ void rebalanceNode(Node *node, BTree *tr) {
     }
 
     int8_t index = -1;
-    for(uint8_t i = 0; i <= parent->numKeys; i++) {
+    for(uint8_t i = 0; i < parent->numKeys + 1; i++) {
         if(parent->children[i] == node) {
             index = i;
             break;
@@ -410,10 +410,6 @@ void rebalanceNode(Node *node, BTree *tr) {
         return;
     }
 
-    if (parent->isRoot && parent->numKeys == 1) {
-        pushToRoot(node, parent, index);
-        return;
-    }
 
     Node *leftSib = index > 0 ? parent->children[index - 1] : NULL;
     Node *rightSib = index < parent->numKeys ? parent->children[index + 1]: NULL;
@@ -422,15 +418,15 @@ void rebalanceNode(Node *node, BTree *tr) {
     } else if (leftSib != NULL && leftSib->numKeys > MIN_KEYS) {
         shiftKeys(node, parent, leftSib, index, FALSE);
     } else if (rightSib != NULL) {
-        mergeNodes(node, parent, rightSib, index, TRUE, tr);
+        mergeNodes(node, parent, rightSib, index, TRUE, tr, &parent);
     } else if (leftSib != NULL) {
-        mergeNodes(node, parent, leftSib, index, FALSE, tr);
+        mergeNodes(node, parent, leftSib, index, FALSE, tr, &parent);
     } else {
         fprintf(stderr, "Erreur : impossible de supprimer la clé du noeud");
         return;
     }
-
-    if (parent->numKeys < MIN_KEYS && !parent->isRoot) {
+    
+    if (parent != NULL && parent->numKeys < MIN_KEYS && !parent->isRoot) {
         rebalanceNode(parent, tr);
     }
 }
@@ -472,7 +468,10 @@ void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool right
 }
 
 
-void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr) {
+void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr, Node **parentPtr) {
+    if (!rightDirection) {
+        parentIndex -= 1;
+    }
     sibling->keys[sibling->numKeys] = parent->keys[parentIndex];
     sibling->rows[sibling->numKeys] = cloneRow(parent->rows[parentIndex]);
     sibling->numKeys++;
@@ -481,8 +480,29 @@ void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bo
         sibling->keys[sibling->numKeys] = node->keys[i];
         sibling->rows[sibling->numKeys] = cloneRow(node->rows[i]);
         sibling->numKeys++;
+
+
+        if(sibling->numKeys == MAX_KEYS) {
+            break;
+        }
     }
 
+    if (parent->isRoot && parent->numKeys == 1) {
+        sibling->parent = NULL;
+        node->parent = NULL;
+
+        free(parent->children);
+        parent->children = NULL; 
+
+        freeNode(parent);
+        *parentPtr = NULL;
+
+        freeNode(node);
+        
+        changeRoot(sibling, tr);
+        return;
+    }
+    
     if (node->children != NULL) {
         for (uint8_t i = 0; i <= node->numKeys; i++) {
             sibling->children[sibling->numKeys + i] = node->children[i];

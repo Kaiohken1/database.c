@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 
 #define MAX_KEYS 4
 #define MIN_KEYS 2
@@ -52,7 +53,7 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug);
 void rebalanceNode(Node *node, BTree *tr);
 void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection);
 Bool keyExists(BTree *tr, uint64_t value);
-void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr);
+void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr, Node **parentPtr);
 Row *cloneRow(Row* original);
 void pushToRoot(Node *node, Node *root, int8_t index);
 void takeFromChild(Node *node, uint8_t i, BTree *tr);
