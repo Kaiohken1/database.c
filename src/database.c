@@ -30,12 +30,13 @@ void insertData(char name[50], BTree *tr) {
     Row *rows[1];
     rows[0] = row;
 
+    tr->totalId++;
+
     if(tr->root != NULL) {
-        uint64_t nextId = getNextId(tr->root);
-        insertKey(nextId, tr, name);
+        insertKey(tr->totalId, tr, name);
         free(row);
     } else {
-        uint64_t values[] = {1};
+        uint64_t values[] = {tr->totalId};
         Node *node = createNode(values, 1, TRUE, rows);
         tr->root = node;
     }

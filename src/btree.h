@@ -27,6 +27,7 @@ typedef struct Node {
 
 typedef struct BTree {
     struct Node *root;
+    uint64_t totalId;
 } BTree;
 
 typedef struct Row {
