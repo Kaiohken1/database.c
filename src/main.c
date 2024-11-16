@@ -55,6 +55,12 @@ int main(int argc, char* argv[], char* envp[]){
   // // printf("Next id : %ld\n", id);
   saveBTree(tr);
   freeBTree(tr);
+  BTree *load = loadBTree();
+  printTree(load, TRUE);
+  freeBTree(load);
+  // BTree * load = loadBTree();
+  // printTree(load, TRUE);
+  // freeBTree(load);
   // repl();
 
 

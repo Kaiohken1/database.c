@@ -10,5 +10,8 @@
 void saveRow(FILE *file, Row *row);
 void saveNode(FILE *file, Node *node);
 void saveBTree(BTree *tree);
+Row* loadRow(FILE *file);
+Node* loadNode(FILE *file);
+BTree* loadBTree();
 
 #endif
