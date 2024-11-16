@@ -23,6 +23,8 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
     node->parent = NULL;
     node->isRoot = isRoot;
 
+    assert(node != NULL);
+
     return node;
 }
 
@@ -40,6 +42,8 @@ BTree *createTree(Node *root) {
 
     tree->totalId = 0;
     tree->root = root ? root : NULL;
+
+    assert(tree != NULL);
     return tree;
 }
 
