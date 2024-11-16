@@ -37,6 +37,8 @@ BTree *createTree(Node *root) {
         fprintf(stderr, "Erreur : Problème lors de l'allocation dynamique pour l'arbre\n");
         exit(EXIT_FAILURE);
     }
+
+    tree->totalId = 0;
     tree->root = root ? root : NULL;
     return tree;
 }
@@ -303,6 +305,7 @@ void insertTest(uint8_t max, BTree *tr, char name[50]) {
 
     for(uint8_t i = 2; i <= max; i++) {
         insertKey(i, tr, name);
+        tr->totalId++;
     }
 }
 

@@ -126,7 +126,6 @@ void execute_statement(Statement* statement, BTree *tr) {
 void repl(void){
   InputBuffer* input_buffer = new_input_buffer();
   BTree *tr =  createTree(NULL);
-  tr->totalId = 0;
 
   while (true) {
     print_prompt();
