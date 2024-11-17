@@ -1,5 +1,13 @@
 #include "btree.h"
 
+/**
+ * Création d'un noeud
+ * @param values Tableau de clés à insérer
+ * @param numValues Nombre de clés à insérer
+ * @param isRoot Etat du noeud
+ * @param rows Tableau de lignes
+ * @return Node
+ */
 Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[]) {
     Node *node = (Node*)malloc(sizeof(*node));
     if (node == NULL) {
@@ -28,6 +36,11 @@ Node *createNode(uint64_t values[], uint8_t numValues, Bool isRoot, Row *rows[])
     return node;
 }
 
+/**
+ * Création du Btree
+ * @param root Noeud racine de l'arbre
+ * @return Btree
+ */
 BTree *createTree(Node *root) {
     if(root != NULL && root->isRoot == FALSE) {
         printf("Erreur : impossible de créer un arbre sans un noeud de type racine\n");
@@ -47,6 +60,11 @@ BTree *createTree(Node *root) {
     return tree;
 }
 
+/**
+ * Libération récursive de la mémoire d'un noeud et de ses enfants
+ * @param node Noeud à libérer
+ * @return void
+ */
 void freeNode(Node *node) {
     if (node != NULL) {
         if (node->children != NULL) {
@@ -69,6 +87,11 @@ void freeNode(Node *node) {
     }
 }
 
+/**
+ * Libération du Btree et de tous ses noeuds
+ * @param tree Arbre B à libérer
+ * @return void
+ */
 void freeBTree(BTree *tree) {
     if (tree != NULL) {
         if (tree->root != NULL) {
@@ -78,7 +101,13 @@ void freeBTree(BTree *tree) {
     }
 }
 
-
+/**
+ * Insértion d'une clé dans le Btree
+ * @param value valeur de la clé
+ * @param tree arbre dans lequel insérer la clé
+ * @param name valeur pour la colonne nom de la table
+ * @return void
+ */
 void insertKey(uint64_t value, BTree *tree, char name[50]) {
     Node *node = tree->root;
 
@@ -115,6 +144,12 @@ void insertKey(uint64_t value, BTree *tree, char name[50]) {
     }
 }
 
+/**
+ * Insertion d'une clé donnée dans un noeud avec tri croissant
+ * @param value
+ * @param node
+ * @param row
+ */
 void insertKeyOnNode(uint64_t value, Node *node, Row *row) {
     int8_t i;
     for (i = node->numKeys - 1; i >= 0 && node->keys[i] > value; i--) {
@@ -130,8 +165,11 @@ void insertKeyOnNode(uint64_t value, Node *node, Row *row) {
 }
 
 
-//Ici on reçoit un noeud qui dépasse la taille maximale autorisée
-//il faut donc le scinder en deux et isoler sa valeur médianne pour la transformer en parent
+/**
+ * Séparation d'un noeud en deux et passage de sa valeur médianne chez le parent
+ * @param node
+ * @param tree
+ */
 void splitNode(Node *node, BTree *tree) {
     uint8_t medianIndex = MAX_KEYS / 2;
     uint64_t medianValue = node->keys[medianIndex];
@@ -233,6 +271,10 @@ void splitNode(Node *node, BTree *tree) {
     free(node);
 }
 
+/**
+ * Récupération de l'index dans le parent selon l'enfant
+ * 
+ */
 uint8_t findChildPosition(Node *parent, Node *child) {
     if(parent == NULL || child == NULL) {
         return -1;
@@ -247,10 +289,14 @@ uint8_t findChildPosition(Node *parent, Node *child) {
     return -1;
 }
 
-
+/**
+ * Changement du noeud racine avec celui donné
+ * @param noeud Nouvelle racine
+ * @param tree Arbre recevant le nouveau noeud racine
+ */
 void changeRoot(Node *node, BTree *tree) {
     tree->root = node;
-    printf("Noeud racine changé à %ld\n", tree->root->keys[0]);
+    // printf("Noeud racine changé à %ld\n", tree->root->keys[0]);
 }
 
 void printNode(Node *node, Bool withRows) {
@@ -336,9 +382,9 @@ uint64_t getKey(BTree *tr, uint64_t value) {
 
 /**
  * Supression d'une clé dans l'arbre
- * @param BTree tr
- * @param uint64_t value
- * @param Bool debug
+ * @param tr Arbre dans lequel chercher la clé
+ * @param value valeur de la clé à supprimer
+ * @param debug Activer le print pour debug
  * @return void
  */
 void deleteKey(BTree *tr, uint64_t value, Bool debug) {
@@ -398,6 +444,11 @@ void deleteKey(BTree *tr, uint64_t value, Bool debug) {
     }
 }
 
+/**
+ * Rééquilibrage d'un noeud selon la disponibilité des noeuds adjaçants (récursif)
+ * @param node Noeud à rééquilibrer
+ * @param tr Arbre contenant le noeud à rééquilibrer
+ */
 void rebalanceNode(Node *node, BTree *tr) {
     Node *parent = node->parent;
     if(parent == NULL) {
@@ -438,6 +489,15 @@ void rebalanceNode(Node *node, BTree *tr) {
     }
 }
 
+/**
+ * Déplacement d'une clé parent vers le noeud enfant qui n'en a plus assez, et remplacement de celle-ci par la clé d'un noeud adjaçant
+ * @param node Le noeud ayant besoin d'être rééquilibré
+ * @param parent Le parent chez qui chercher la clé
+ * @param sibling Le noeud adjaçant chez qui prendre une clé pour remplacer celle prise dans le parent
+ * @param index Position du noeud par rapport au tableau des enfants du parent
+ * @param rightDirection Précision si on prend à droite ou a gauche
+ * @return void
+ */
 void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool rightDirection) {
     if(rightDirection) {
         node->keys[node->numKeys] = parent->keys[index];
@@ -474,7 +534,18 @@ void shiftKeys(Node *node, Node *parent, Node *sibling, int8_t index, Bool right
     }
 }
 
-
+/**
+ * Récupération des clés chez le parent et chez un noeud adjaçant puis fusion des deux
+ * @param node Le noeud ayant besoin de clés
+ * @param parent Le parent chez qui prendre une clé
+ * @param sibling Le noeud adjaçant à fusionner avec le noeud actuel
+ * @param parentIndex La position du noeud actuel dans le tableau des enfants du parent
+ * @param rightDirection Précision si on prend à droite ou a gauche
+ * @param tr Arbre dans lequel effectuer l'opération
+ * @param parentPtr Pointeur de pointeur du parent pour pouvoir le libérer si besoin
+ * @return void
+ * 
+ */
 void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bool rightDirection, BTree *tr, Node **parentPtr) {
     if (!rightDirection) {
         parentIndex -= 1;
@@ -554,6 +625,11 @@ void mergeNodes(Node *node, Node *parent, Node *sibling, uint8_t parentIndex, Bo
     freeNode(node);
 }
 
+/**
+ * Copie d'une ligne d'un noeud
+ * @param original La ligne à copier
+ * @return Row
+ */
 Row *cloneRow(Row *original) {
     if (original == NULL) {
         return NULL;
@@ -566,24 +642,9 @@ Row *cloneRow(Row *original) {
     return newRow;
 }
 
-
-void pushToRoot(Node *node, Node *root, int8_t index) {
-    if (index > 0) { 
-        root->keys[1] = node->keys[0];
-        root->rows[1] = cloneRow(node->rows[0]);
-    } else {
-        root->keys[1] = root->keys[0];
-        root->rows[1] = cloneRow(root->rows[0]);
-
-        root->keys[0] = node->keys[0];
-        root->rows[0] = cloneRow(node->rows[0]);
-    }
-
-    root->numKeys++;
-    root->children[index] = NULL;
-    freeNode(node);
-}
-
+/**
+ * Prendre une clé depuis un enfant
+ */
 void takeFromChild(Node *node, uint8_t i, BTree *tr) {
     if (i + 1 <= node->numKeys && node->children[i + 1] != NULL) {
         Node *child = node->children[i + 1];

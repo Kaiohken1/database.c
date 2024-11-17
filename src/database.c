@@ -18,7 +18,11 @@ uint64_t getNextId(Node *node) {
 }
 
 
-
+/**
+ * Insértion d'une valeur pour la colonne name dans la base
+ * @param name Nom à insérer
+ * @param tr Arbre dans lequel insérer la valeur
+ */
 void insertData(char name[50], BTree *tr) {
     Row *row = malloc(sizeof(Row));
     if (row == NULL) {
@@ -44,6 +48,9 @@ void insertData(char name[50], BTree *tr) {
     return;
 }
 
+/**
+ * Sélection de toutes les données dans la bdd
+ */
 void selectAll(Node *node) {
     if (node == NULL) {
         return; 
@@ -74,7 +81,10 @@ void selectAll(Node *node) {
     }
 }
 
-
+/**
+ * Préparation du compteur de résultats et lancement de l'instruction
+ * @param root Racine de l'arbre
+ */
 void initSelectAll(Node *root) {
     globalCounter= 0;
     selectAll(root);
@@ -82,18 +92,27 @@ void initSelectAll(Node *root) {
 }
 
 
-//Recherche dichotomique
+/**
+ * Recherche dichotomique d'une valeur spécifique dans toute la base (récursif)
+ * @param node Noeud dans lequel rechercher la valeur
+ * @param value Valeur à rechercher
+ * @param isID Détermine si l'Id doit être affiché
+ * @param isName Détermine si le nom doit être affiché
+ * @param idSearch Détemrine si la recherche se fait sur l'id ou le nom
+ * @param idValue Valeur de l'id si la recherche se fait par celui-ci
+ * 
+ */
 void selectRow(Node *node, char *value, Bool isID, Bool isName, Bool idSearch, uint64_t idValue) {
     if (node == NULL) {
          return;
     }
 
-    uint16_t left = 0;
-    uint16_t right = node->numKeys - 1;
+    int16_t left = 0;
+    int16_t right = node->numKeys - 1;
     Bool match = FALSE;
 
     while (left <= right) {
-        uint16_t mid = (left + right) / 2;
+        int16_t mid = (left + right) / 2;
 
         if ((idSearch && node->rows[mid]->id == idValue) || (!idSearch && strcmp(node->rows[mid]->name, value) == 0)) {
             match = TRUE;
@@ -131,7 +150,13 @@ void selectRow(Node *node, char *value, Bool isID, Bool isName, Bool idSearch, u
     }
 }
 
-void initSelect(Node *root, char *value, char *columnName, char columns[]) {
+/**
+ * Parsing pour préparer le lancement de la recherche
+ * @param root noeud racine
+ * @param value valeur à trouver
+ * @param columns Colonnes à rechercher
+ */
+void initSelect(Node *root, char *value, char columns[]) {
     Bool isID = FALSE, isName = FALSE;
     char *parser = strtok(columns, " ,");
     while (parser != NULL) {
@@ -149,17 +174,24 @@ void initSelect(Node *root, char *value, char *columnName, char columns[]) {
     printf("%ld résultat%s\n", globalCounter, globalCounter == 1 ? "" : "s");
 }
 
+/**
+ * Supression d'une ligne dans la base
+ * @param node Noeud dans lequel rechercher la valeur à supprimer
+ * @param value Valeur à supprimer
+ * @param idSearch Détemrine si la recherche se fait sur l'id ou le nom
+ * @param idValue Valeur de l'id si la recherche se fait par celui-ci
+ * @return void
+ */
 void deleteRow(BTree *tr, Node *node, char *value, Bool idSearch, uint64_t idValue) {
     if (node == NULL) {
         return;
     }
-
-    uint16_t left = 0;
-    uint16_t right = node->numKeys - 1;
+    int16_t left = 0;
+    int16_t right = node->numKeys - 1;
     Bool match = FALSE;
 
     while (left <= right) {
-        uint16_t mid = (left + right) / 2;
+        int16_t mid = (left + right) / 2;
 
         if ((idSearch && node->rows[mid]->id == idValue) || (!idSearch && strcmp(node->rows[mid]->name, value) == 0)) {
             match = TRUE;
@@ -185,6 +217,12 @@ void deleteRow(BTree *tr, Node *node, char *value, Bool idSearch, uint64_t idVal
 
 
 
+/**
+ * Parsing de l'instruction avant lancement de l'opération
+ * @param tr 
+ * @param value valeur à supprimer
+ * @return voids
+ */
 void initDelete(BTree *tr, char *value) {
     char *ptr;
     uint64_t idValue = strtol(value, &ptr, 10);

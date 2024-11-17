@@ -78,6 +78,7 @@ MetaCommandResult do_meta_command(InputBuffer* input_buffer, BTree **tr) {
   } else if (strcmp(input_buffer->buffer, ".load") == 0) {
     freeBTree(*tr); 
     *tr = loadBTree();
+    printTree(*tr, TRUE);
     return META_COMMAND_SUCCESS;
   } else {
     return META_COMMAND_UNRECOGNIZED_COMMAND;
@@ -121,7 +122,7 @@ void execute_statement(Statement* statement, BTree *tr) {
       if (strncmp(statement->selector, "*", 1) == 0) {
         initSelectAll(tr->root);
       } else {
-        initSelect(tr->root, statement->selector, statement->columnName, statement->columns);
+        initSelect(tr->root, statement->selector, statement->columns);
       }
       break;
     case (STATEMENT_DELETE):
