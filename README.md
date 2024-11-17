@@ -92,7 +92,7 @@ En général on trie les données en fonction de cette configuration avec par ex
 
 Le problème que l’on retrouve est que l’arbre binaire est susceptible d’être déséquilibré, ce qui impact son optimalité. Notamment si on insère les données de manière croissante.
 
-![[img/arbre_binaire.png]]
+![arbre binaire](img/arbre_binaire.png)  
 *Arbre binaire déséquilibré suite à une insertion croissante de valeurs allant de 1 à 5*
 
 À la différence, un Btree peut accepter plusieurs valeurs dans ses nœuds et un noeud à donc un nombre d’enfants possible égal au nombre de valeurs + 1. Les valeurs d’un noeud sont toujours triées dans l’ordre croissant.
@@ -101,12 +101,12 @@ On donne un nombre maximum d’enfants (4 par défaut ici) ainsi qu’un minimum
 
 Lorsqu’un nœud dépasse la limite de valeurs autorisées, celui-ci est scindé en deux et la valeur médiane est poussé vers le nœud parent. S’il y en pas parce qu’on est déjà à la racine, un nouveau nœud est créé et deviens la nouvelle racine de l’arbre
 
-Fonctions utilisées : `createTree`, `createNode`, `splitNode`, `insertKey`
-
-![[img/inser_btree.png]]
+![inser btree](img/inser_btree.png)  
 *Rééquilibrage automatique du Btree suite à une insertion croissante de valeurs allant de 1 à 5*
 
 En plus de l’équilibrage automatique, la présence de plusieurs clés par noeuds permet de créer des blocs de taille fixe, ce qui optimise également l’utilisation de la mémoire.
+
+Fonctions utilisées : `createTree`, `createNode`, `splitNode`, `insertKey`
 
 ### Recherche de clé
 
@@ -126,7 +126,7 @@ Fonctions utilisées : `deleteKey`, `rebalanceNode`
 
 La première solution est de prendre une clé au parent et de la remplacer par une autre clé d’un nœud adjacent. La plus grande pour celui de gauche et la plus petite pour celui de droite.
 
-![[img/shiftkeys.png]]
+![déplacement des clés](img/shiftkeys.png)  
 *Décallage des clés après suppression de 12 dans le deuxième enfant*
 
 Fonctions utilisées : `shiftKeys`
@@ -135,7 +135,7 @@ Fonctions utilisées : `shiftKeys`
 
 Si cela n’est pas possible car les deux nœuds adjacents n’ont pas assez de clés pour pouvoir en perdre une sans tomber en dessous du minimum permis. Alors une fusion est effectuée avec un de ces deux là et notre nœud actuel, pour n’en former plus qu’un qui est réajusté avec le parent. 
 
-![[img/mergenodes.png]]
+![fusion des clés](img/mergenodes.png)  
 *Fusion des noeuds adjaçants après suppression de 12 dans le précédent deuxième enfant*
 
 Fonctions utilisées : `mergeNodes`
