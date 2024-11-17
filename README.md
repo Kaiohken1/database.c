@@ -1,7 +1,7 @@
 
 ## Description
 
-Ce projet a pour but d’implémenter une base de donnée en C afin de pouvoir gérer manuellement la mémoire allouée et organiser la donnée de manière efficace et optimale.
+Ce projet a pour but d’implémenter une base de donnée en C afin de pouvoir gérer manuellement la mémoire allouée et organiser la donnée de manière efficace et optimisée.
 
 La gestion des données est effectuée grâce à un **Btree** (variante de l’arbre binaire).
 
@@ -93,7 +93,7 @@ Un arbre binaire est une structure de données particulièrement adaptée pour l
 
 ### Insertion de clé
 
-Un arbre binaire classique fonctionne avec un nœud parent qui possède au maximum deux nœuds enfants. Ces mêmes enfants peuvent avoir deux nœuds enfants eux aussi et ainsi de suite. 
+Un arbre binaire classique fonctionne avec un nœud parent qui possède au maximum deux nœuds enfants. Ces mêmes enfants peuvent avoir eux aussi deux nœuds enfants, et ainsi de suite. 
 
 En général on trie les données en fonction de cette configuration avec par exemple les valeurs plus petites que le parent à gauche et les plus grandes à droite.
 
