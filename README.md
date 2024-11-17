@@ -22,7 +22,7 @@ Lancement par défaut du programme
 make 
 ```
 
-Lancer le programme avec valgrind (installation requise) afin de détecter les fuites de mémoire potentielles
+Lancer le programme avec valgrind afin de détecter les fuites de mémoire potentielles (installation requise)
 ```
 make valgrind
 ```
@@ -36,11 +36,18 @@ make gdb
 
 Les instructions relatives à la base suivent le même format qu’en SQL (en minuscule), et sont au nombre de trois. Les autres commencent par un point.
 ### Select
+
+#### Selectionner toutes les données de la base
+```
+select *
+```
+
+#### Selectionner des données selon une condition spécifique
 ```
 select [colonne(s)] where [colonne] = [nom ou id recherché]
 ```
-
 > select peut prendre plusieurs colonnes en premier argument, il faut simplement les séparer d’une virgule ex : “select id, name”
+
 ### Insert
 ```
 insert [chaîne de caractère]
